@@ -1,0 +1,42 @@
+.sizeValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.sizeSub {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.timestamp {
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Sender → Receiver pair, kept compact so the row stays scannable. */
+.parties {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.party {
+  text-transform: capitalize;
+}
+
+.arrow {
+  color: var(--color-text-tertiary);
+}
+
+.transferId {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.02em;
+}
