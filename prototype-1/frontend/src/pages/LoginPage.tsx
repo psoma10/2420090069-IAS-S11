@@ -128,12 +128,18 @@ export function LoginPage() {
           </p>
           <div className={styles.pipeline} aria-hidden="true">
             <span className={styles.pipelineStep}>PLAINTEXT</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>ENCRYPT</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>CIPHERTEXT</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>SERVER</span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>ENCRYPT</span>
+            </span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>CIPHERTEXT</span>
+            </span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>SERVER</span>
+            </span>
           </div>
         </div>
 

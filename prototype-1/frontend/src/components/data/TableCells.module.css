@@ -25,6 +25,7 @@
 
 .fileName {
   min-width: 0;
+  max-width: 26ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

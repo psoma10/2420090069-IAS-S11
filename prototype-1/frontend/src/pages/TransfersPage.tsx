@@ -117,8 +117,8 @@ export function TransfersPage() {
     },
     {
       key: "parties",
-      header: "Sender → Receiver",
-      width: "170px",
+      header: "Sender",
+      width: "150px",
       skeletonWidth: "80%",
       render: (row) => (
         <span className={styles.parties}>
@@ -134,7 +134,7 @@ export function TransfersPage() {
       key: "direction",
       header: "Direction",
       sortable: true,
-      width: "160px",
+      width: "150px",
       skeletonWidth: "85%",
       render: (row) => <Badge tone={directionTone(row.direction)}>{formatDirection(row.direction)}</Badge>,
     },
@@ -142,7 +142,7 @@ export function TransfersPage() {
       key: "algorithm",
       header: "Algorithm",
       sortable: true,
-      width: "110px",
+      width: "116px",
       skeletonWidth: "60%",
       render: (row) => <AlgoCell>{formatAlgorithm(row.algorithm)}</AlgoCell>,
     },
@@ -165,7 +165,7 @@ export function TransfersPage() {
       header: "Timestamp",
       sortable: true,
       align: "right",
-      width: "170px",
+      width: "152px",
       skeletonWidth: "70%",
       render: (row) => (
         <time className={styles.timestamp} dateTime={toDateTimeAttr(row.timestamp)}>
@@ -177,7 +177,7 @@ export function TransfersPage() {
       key: "status",
       header: "Status",
       sortable: true,
-      width: "130px",
+      width: "122px",
       skeletonWidth: "70%",
       render: (row) => (
         <Badge tone={transferStatusTone(row.status)} dot>

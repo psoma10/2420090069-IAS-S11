@@ -91,8 +91,12 @@ export function TransferMonitorPage() {
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
+    // Captured into a local so the cleanup clears the array this effect saw,
+    // not whatever `.current` happens to point at when unmount runs.
+    const scheduled = timers.current;
     return () => {
-      timers.current.forEach((t) => window.clearTimeout(t));
+      scheduled.forEach((t) => window.clearTimeout(t));
+      scheduled.length = 0;
     };
   }, []);
 

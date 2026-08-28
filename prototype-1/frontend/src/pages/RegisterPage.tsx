@@ -159,12 +159,18 @@ export function RegisterPage() {
           </p>
           <div className={styles.pipeline} aria-hidden="true">
             <span className={styles.pipelineStep}>REGISTER</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>UPLOAD</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>ENCRYPT</span>
-            <span className={styles.pipelineArrow}>&rarr;</span>
-            <span className={styles.pipelineStep}>TRANSFER</span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>UPLOAD</span>
+            </span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>ENCRYPT</span>
+            </span>
+            <span className={styles.pipelinePair}>
+              <span className={styles.pipelineArrow}>&rarr;</span>
+              <span className={styles.pipelineStep}>TRANSFER</span>
+            </span>
           </div>
         </div>
 
