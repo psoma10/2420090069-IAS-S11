@@ -11,17 +11,17 @@ further along the 26-letter English alphabet, wrapping from ``z`` back to
     decryption:  p = (c - k) mod 26
 
 The shift `k` is the entire key, so the keyspace holds only 26 members. The
-cipher therefore falls to exhaustive search — all 26 candidate decryptions fit
-on one page — and to frequency analysis, since a fixed shift preserves the
-language's letter-frequency profile. It is the historical baseline against
-which CyberVault's stronger ciphers (Playfair, S-DES, AES) are compared.
+cipher therefore falls to exhaustive search and to frequency analysis, since a
+fixed shift preserves the language's letter-frequency profile. It is the
+historical baseline against which CyberVault's stronger ciphers (Playfair,
+S-DES, AES) are compared.
 
 Character handling
 ------------------
 Case is preserved: with ``k = 3``, ``'a' -> 'd'`` and ``'A' -> 'D'``. Every
 non-alphabetic character — spaces, punctuation, digits, newlines and all
-non-ASCII/unicode text — passes through untouched. Because nothing is dropped,
-folded or padded, ``decrypt(encrypt(p, k), k) == p`` holds exactly for any input.
+non-ASCII/unicode text — passes through untouched. Nothing is dropped, folded
+or padded, so ``decrypt(encrypt(p, k), k) == p`` holds exactly for any input.
 
 Key policy
 ----------
@@ -98,22 +98,21 @@ def _shift_text(text: str, shift: int) -> str:
     return "".join(result)
 
 
+def _require_text(value: str, label: str) -> str:
+    """Reject non-string payloads before any shifting is attempted."""
+    if not isinstance(value, str):
+        raise ValueError(f"Caesar {label} must be a string, got {type(value).__name__}.")
+    return value
+
+
 def encrypt(plaintext: str, key: str) -> str:
     """Encrypt `plaintext` with the Caesar shift `key` (a string such as ``"3"``)."""
-    if not isinstance(plaintext, str):
-        raise ValueError(
-            f"Caesar plaintext must be a string, got {type(plaintext).__name__}."
-        )
-    return _shift_text(plaintext, validate_key(key))
+    return _shift_text(_require_text(plaintext, "plaintext"), validate_key(key))
 
 
 def decrypt(ciphertext: str, key: str) -> str:
     """Recover the plaintext from `ciphertext` using the same Caesar shift `key`."""
-    if not isinstance(ciphertext, str):
-        raise ValueError(
-            f"Caesar ciphertext must be a string, got {type(ciphertext).__name__}."
-        )
-    return _shift_text(ciphertext, -validate_key(key))
+    return _shift_text(_require_text(ciphertext, "ciphertext"), -validate_key(key))
 
 
 def generate_key() -> str:

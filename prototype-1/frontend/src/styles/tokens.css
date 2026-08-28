@@ -1,0 +1,122 @@
+/*
+  CyberVault design tokens — single source of truth.
+  Dark-first professional security product. No neon/matrix cliches:
+  navy/slate base, one cyan accent for primary actions + live status,
+  monospace reserved for ciphertext/keys/hashes per PRD section 8.
+*/
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Color: surfaces ---- */
+  --color-bg: #0a0e17;
+  --color-bg-elevated: #0f1420;
+  --color-surface: #131a2a;
+  --color-surface-hover: #171f33;
+  --color-surface-active: #1b2440;
+  --color-border: #232c42;
+  --color-border-strong: #2f3b58;
+
+  /* ---- Color: text ---- */
+  --color-text-primary: #e7ecf7;
+  --color-text-secondary: #9aa7c2;
+  --color-text-tertiary: #6b7797;
+  --color-text-disabled: #4a5470;
+
+  /* ---- Color: brand / accent ---- */
+  --color-accent: #22d3ee;
+  --color-accent-hover: #4de1f5;
+  --color-accent-active: #17b8d4;
+  --color-accent-muted: rgba(34, 211, 238, 0.12);
+  --color-on-accent: #04141a;
+
+  /* ---- Color: semantic ---- */
+  --color-success: #34d399;
+  --color-success-muted: rgba(52, 211, 153, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-muted: rgba(251, 191, 36, 0.12);
+  --color-danger: #f87171;
+  --color-danger-hover: #fb8787;
+  --color-danger-muted: rgba(248, 113, 113, 0.12);
+  --color-info: #818cf8;
+  --color-info-muted: rgba(129, 140, 248, 0.12);
+
+  /* ---- Color: algorithm identity (badges only, not decorative) ---- */
+  --color-algo-classical: #a78bfa;
+  --color-algo-educational: #fbbf24;
+  --color-algo-modern: #22d3ee;
+
+  /* ---- Typography ---- */
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --text-xs: 0.75rem;   /* 12px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md: 1rem;      /* 16px */
+  --text-lg: 1.125rem;  /* 18px */
+  --text-xl: 1.375rem;  /* 22px */
+  --text-2xl: 1.75rem;  /* 28px */
+  --text-3xl: 2.25rem;  /* 36px */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Radii ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* ---- Shadows (subtle, functional depth only) ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 3px var(--color-accent-muted);
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* ---- Layout ---- */
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 64px;
+  --container-max: 1280px;
+
+  /* ---- Z-index scale ---- */
+  --z-header: 100;
+  --z-sidebar: 90;
+  --z-dropdown: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 310;
+  --z-toast: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
