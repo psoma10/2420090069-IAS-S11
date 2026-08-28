@@ -62,7 +62,7 @@
 
 .secondary {
   background: var(--color-surface);
-  border-color: var(--color-border-strong);
+  border-color: var(--color-border-control);
   color: var(--color-text-primary);
 }
 .secondary:hover:not(:disabled) {
@@ -111,4 +111,17 @@
   .spinner {
     animation-duration: 1.2s;
   }
+}
+
+.secondary:active:not(:disabled) {
+  background: var(--color-surface-active);
+}
+
+.ghost:active:not(:disabled) {
+  background: var(--color-surface-hover);
+}
+
+.danger:active:not(:disabled) {
+  background: var(--color-danger);
+  filter: brightness(0.92);
 }
