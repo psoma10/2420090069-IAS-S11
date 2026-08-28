@@ -1,0 +1,74 @@
+/* Pipeline shell: endpoint labels + the ordered stage list. */
+
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* CLIENT --- SERVER endpoint header, mirroring the PRD Screen 5 diagram. */
+.endpoints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.endpoint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.endpointIcon {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.endpointRule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--color-border),
+    var(--color-border-strong),
+    var(--color-border)
+  );
+}
+
+.stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Summary strip below the stages. */
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.summaryItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.summaryValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
