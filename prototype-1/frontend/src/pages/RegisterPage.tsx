@@ -238,7 +238,6 @@ export function RegisterPage() {
                   autoComplete="new-password"
                   disabled={submitting}
                   error={errors.password}
-                  hint={errors.password ? undefined : "At least 8 characters."}
                   onChange={(e) => update("password", e.target.value)}
                   onBlur={() => handleBlur("password")}
                 />

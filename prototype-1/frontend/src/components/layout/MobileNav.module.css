@@ -179,7 +179,11 @@
 }
 
 @media (max-width: 1023.98px) {
+  /* `contents`, not `block`: this element is a direct child of the shell's
+     grid, so a block box claimed its own ~186px row and pushed the header
+     and page down by that much. Both descendants are position:fixed
+     overlays, so they need no space in the flow. */
   .root {
-    display: block;
+    display: contents;
   }
 }
