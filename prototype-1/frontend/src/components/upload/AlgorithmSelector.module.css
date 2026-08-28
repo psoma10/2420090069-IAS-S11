@@ -1,0 +1,217 @@
+/*
+  FR-04 algorithm picker. Radio-card grid rather than a <select>, because
+  each option carries a description the PRD requires to be visible at the
+  moment of choosing — a dropdown would hide exactly the text that makes
+  the choice informed.
+*/
+
+.group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.hint {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.option {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  cursor: pointer;
+  transition: border-color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.option:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+.option:active {
+  transform: scale(0.99);
+  background: var(--color-surface-active);
+}
+
+/* Focus lives on the visually-hidden radio; project the ring onto the card. */
+.option:has(.radio:focus-visible) {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.option:has(.radio:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-focus);
+}
+
+.option:has(.radio:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Custom control, drawn so the checked state reads at a glance. */
+.marker {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+.marker::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  transform: scale(0);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.option:hover .marker {
+  border-color: var(--color-accent);
+}
+
+.option:has(.radio:checked) .marker {
+  border-color: var(--color-accent);
+}
+
+.option:has(.radio:checked) .marker::after {
+  transform: scale(1);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+}
+
+.description {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.keyFormat {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+/* Type tag — reuses the algorithm identity tokens. */
+.tag {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+
+.tagClassical { color: var(--color-algo-classical); }
+.tagEducational { color: var(--color-algo-educational); }
+.tagModern { color: var(--color-algo-modern); }
+
+.recommended {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+/* ---------- Loading skeletons ---------- */
+
+.skeleton {
+  height: 96px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-elevated) 25%,
+    var(--color-surface-hover) 37%,
+    var(--color-bg-elevated) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 50%; }
+  to { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--color-bg-elevated);
+  }
+}
+
+/* Offline notice when the list came from the local fallback. */
+.fallbackNote {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

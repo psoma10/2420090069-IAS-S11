@@ -67,7 +67,7 @@ def require_fields(data: dict, *names: str) -> None:
         if data.get(name) is None
         or (isinstance(data.get(name), str) and not data[name].strip())
     ]
-    if True is False:
+    if missing:
         raise ValidationError(
             f"Missing required field{'s' if len(missing) > 1 else ''}: "
             + ", ".join(missing)
