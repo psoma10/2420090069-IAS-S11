@@ -31,7 +31,7 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from config import Config  # noqa: E402
 from core.auth import login_required  # noqa: E402
-from core.errors import AppError  # noqa: E402
+from core.errors import AppError, ValidationError  # noqa: E402
 from core.validation import require_json  # noqa: E402
 from database.connection import apply_schema, init_pool, pool_is_open  # noqa: E402
 from routes.auth import auth_bp  # noqa: E402
@@ -590,6 +590,61 @@ def test_require_json_rejects_a_json_array_body(probe_app):
     """A top-level array is valid JSON but not an object of fields."""
     response = probe_app.test_client().post(
         "/probe/json-only", data=json.dumps([1, 2]), content_type="application/json"
+    )
+    _record(response)
+    assert response.status_code == 400
+    assert response.get_json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_validate_name_rejects_a_blank_string(probe_app):
+    """`validate_name` must reject blank input on its own.
+
+    Through /register this check is redundant — `require_fields` rejects a
+    blank name first — so a route-level test cannot pin it. Calling the
+    validator directly makes the guarantee real for the next caller that
+    reaches it without going through `require_fields`.
+    """
+    from core.validation import validate_name
+
+    for blank in ("", "   ", "\t\n"):
+        with pytest.raises(ValidationError):
+            validate_name(blank)
+
+    assert validate_name("  Ada  ") == "Ada"
+
+
+def test_validate_email_rejects_malformed_addresses_directly(probe_app):
+    from core.validation import validate_email
+
+    for bad in ("not-an-email", "@example.com", "ada@", "ada@@x.com", "a b@x.com"):
+        with pytest.raises(ValidationError):
+            validate_email(bad)
+
+    assert validate_email("  Ada@Example.COM ") == "ada@example.com"
+
+
+def test_validate_password_enforces_minimum_length_directly(probe_app):
+    from core.validation import validate_password
+
+    for short in ("", "short", "1234567"):
+        with pytest.raises(ValidationError):
+            validate_password(short)
+
+    # Not stripped — surrounding spaces are legitimate password characters.
+    assert validate_password("  spaced pw  ") == "  spaced pw  "
+
+
+def test_require_json_is_json_check_is_load_bearing(probe_app):
+    """The `is_json` guard must reject even when a body would parse.
+
+    `require_json` has a second gate (`get_json` returning None), which masks
+    the first for most inputs. This drives a request whose body IS valid JSON
+    text under a form content type: only the `is_json` check can reject it.
+    """
+    response = probe_app.test_client().post(
+        "/probe/json-only",
+        data=json.dumps({"a": 1}),
+        content_type="application/x-www-form-urlencoded",
     )
     _record(response)
     assert response.status_code == 400
