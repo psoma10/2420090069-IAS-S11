@@ -252,11 +252,46 @@ export function DocumentDetailPage() {
       </Card>
 
       <div className={styles.panels}>
+        {(cipherLoading || transfer) && (
+          <Card className={styles.panel} padding="sm">
+            <div className={styles.panelHead}>
+              <span className={styles.panelTitle}>
+                <span className={styles.panelMarker} aria-hidden="true" />
+                Ciphertext
+              </span>
+              {transfer && (
+                <>
+                  <span className={styles.panelMeta}>
+                    {formatAlgorithm(transfer.algorithm)} · {formatBytes(transfer.encrypted_size)}
+                  </span>
+                  <CopyButton
+                    value={transfer.ciphertext ?? ""}
+                    className={styles.copyButton}
+                    copiedClassName={styles.copied}
+                    label="Copy"
+                  />
+                </>
+              )}
+            </div>
+            {cipherLoading ? (
+              <div className={styles.skelBody}>
+                {[96, 88, 94, 70].map((width, index) => (
+                  <span className={styles.skelLine} style={{ width: `${width}%` }} key={index} />
+                ))}
+              </div>
+            ) : (
+              <pre className={[styles.codeBlock, styles.cipherBlock].join(" ")}>
+                <code>{transfer?.ciphertext || transfer?.ciphertext_preview || "No ciphertext recorded."}</code>
+              </pre>
+            )}
+          </Card>
+        )}
+
         <Card className={styles.panel} padding="sm">
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>
               <span className={[styles.panelMarker, styles.panelMarkerMuted].join(" ")} aria-hidden="true" />
-              Plaintext content
+              {transfer ? "Decrypted content" : "Plaintext content"}
             </span>
             <span className={styles.panelMeta}>
               {contentStats}

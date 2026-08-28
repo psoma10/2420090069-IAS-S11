@@ -115,3 +115,24 @@ CREATE INDEX IF NOT EXISTS idx_activity_user
     ON activity_log (user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activity_recent
     ON activity_log (created_at DESC);
+
+-- --------------------------------------------------------- document_shares ---
+-- Opt-in public sharing. A document is private until its owner creates a share,
+-- and the unguessable token is the only credential, so it is generated with
+-- secrets.token_urlsafe(32) and never derived from the document id.
+CREATE TABLE IF NOT EXISTS document_shares (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    document_id BIGINT      NOT NULL REFERENCES documents (id) ON DELETE CASCADE,
+    user_id     BIGINT      NOT NULL REFERENCES users (id)     ON DELETE CASCADE,
+    token       TEXT        NOT NULL UNIQUE,
+    label       TEXT,
+    revoked     BOOLEAN     NOT NULL DEFAULT false,
+    expires_at  TIMESTAMPTZ,
+    view_count  INTEGER     NOT NULL DEFAULT 0,
+    last_viewed_at TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_shares_token ON document_shares (token);
+CREATE INDEX IF NOT EXISTS idx_shares_document ON document_shares (document_id);
+CREATE INDEX IF NOT EXISTS idx_shares_user ON document_shares (user_id, created_at DESC);
