@@ -67,11 +67,14 @@ export function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const refs: Record<Field, React.RefObject<HTMLInputElement | null>> = {
-    name: useRef<HTMLInputElement>(null),
-    email: useRef<HTMLInputElement>(null),
-    password: useRef<HTMLInputElement>(null),
-  };
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  function focusField(field: Field) {
+    const target = field === "name" ? nameRef : field === "email" ? emailRef : passwordRef;
+    target.current?.focus();
+  }
 
   useEffect(() => {
     if (status === "authenticated") navigate("/dashboard", { replace: true });
@@ -102,7 +105,7 @@ export function RegisterPage() {
 
     const firstBad = (["name", "email", "password"] as const).find((f) => nextErrors[f]);
     if (firstBad) {
-      refs[firstBad].current?.focus();
+      focusField(firstBad);
       return;
     }
 
@@ -119,7 +122,7 @@ export function RegisterPage() {
           text: "Sign in instead, or register with a different email address.",
           offline: false,
         });
-        refs.email.current?.focus();
+        focusField("email");
       } else if (err instanceof ApiError && isOfflineCode(err.code)) {
         setServerError({
           title: "Can't reach the server",
@@ -192,7 +195,7 @@ export function RegisterPage() {
 
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <Input
-              ref={refs.name}
+              ref={nameRef}
               label="Name"
               name="name"
               value={values.name}
@@ -206,7 +209,7 @@ export function RegisterPage() {
             />
 
             <Input
-              ref={refs.email}
+              ref={emailRef}
               label="Email"
               type="email"
               name="email"
@@ -221,7 +224,7 @@ export function RegisterPage() {
             <div>
               <div className={styles.passwordRow}>
                 <Input
-                  ref={refs.password}
+                  ref={passwordRef}
                   label="Password"
                   type={revealed ? "text" : "password"}
                   name="password"
