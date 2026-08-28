@@ -27,9 +27,16 @@ from crypto import registry
 
 logger = logging.getLogger(__name__)
 
-# Preview and document text share this ceiling; it matches the largest upload
-# the prototype accepts (API_CONTRACT.md section 3.3).
+# Plaintext shares its ceiling with the largest upload the prototype accepts
+# (API_CONTRACT.md section 3.3).
 MAX_TEXT_LENGTH = 10240
+
+# Ciphertext needs its own, larger ceiling: every algorithm expands its input.
+# AES adds a 32-byte header and base64 costs a third on top; SDES emits nine
+# characters per input byte. Reusing the plaintext limit here would make the
+# largest legal upload encryptable but not decryptable, which is precisely the
+# headline scenario. Sized for the worst case with room to spare.
+MAX_CIPHERTEXT_LENGTH = 10240 * 12
 
 
 @dataclass(frozen=True)
@@ -120,12 +127,13 @@ class CryptoService:
         }
 
     @staticmethod
-    def _check_text(text: str, *, field: str = "text") -> str:
+    def _check_text(text: str, *, field: str = "text",
+                    max_length: int = MAX_TEXT_LENGTH) -> str:
         if text is None or not isinstance(text, str):
             raise ValidationError(f"The {field} field must be a string")
-        if len(text) > MAX_TEXT_LENGTH:
+        if len(text) > max_length:
             raise ValidationError(
-                f"The {field} field exceeds the {MAX_TEXT_LENGTH} character limit"
+                f"The {field} field exceeds the {max_length} character limit"
             )
         return text
 
@@ -189,7 +197,9 @@ class CryptoService:
         padding-oracle-shaped mistake.
         """
         algo = _resolve(algorithm_id)
-        CryptoService._check_text(ciphertext, field="ciphertext")
+        CryptoService._check_text(
+            ciphertext, field="ciphertext", max_length=MAX_CIPHERTEXT_LENGTH
+        )
 
         try:
             algo.module.validate_key(key)
@@ -234,4 +244,4 @@ class CryptoService:
         return True if algo.authenticated else None
 
 
-__all__ = ["CryptoService", "CryptoResult", "MAX_TEXT_LENGTH"]
+__all__ = ["CryptoService", "CryptoResult", "MAX_TEXT_LENGTH", "MAX_CIPHERTEXT_LENGTH"]
