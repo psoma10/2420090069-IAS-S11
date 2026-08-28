@@ -117,7 +117,7 @@ export function TransfersPage() {
     },
     {
       key: "parties",
-      header: "Sender",
+      header: "Sender / Receiver",
       width: "150px",
       skeletonWidth: "80%",
       render: (row) => (
