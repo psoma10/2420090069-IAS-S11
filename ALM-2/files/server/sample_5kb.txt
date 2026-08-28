@@ -1,0 +1,78 @@
+ALM-2 Server Sample Document (5 KB) — AES-128-CBC demo, server to client.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+transformations. AES was selected by the U.S. National Institute of
+Standards and Technology in 2001 as the successor to DES, after an open
+international competition. It supports key sizes of 128, 192, and 256 bits
+and processes data in 128-bit blocks through a series of substitution,
+permutation, and key-mixing rounds. Network protocols carry ciphertext
+between hosts over TCP sockets, which guarantee reliable, ordered delivery
+of a byte stream but do not preserve message boundaries, so applications
+must define their own framing on top of the stream.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+transformations. AES was selected by the U.S. National Institute of
+Standards and Technology in 2001 as the successor to DES, after an open
+international competition. It supports key sizes of 128, 192, and 256 bits
+and processes data in 128-bit blocks through a series of substitution,
+permutation, and key-mixing rounds. Network protocols carry ciphertext
+between hosts over TCP sockets, which guarantee reliable, ordered delivery
+of a byte stream but do not preserve message boundaries, so applications
+must define their own framing on top of the stream.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+transformations. AES was selected by the U.S. National Institute of
+Standards and Technology in 2001 as the successor to DES, after an open
+international competition. It supports key sizes of 128, 192, and 256 bits
+and processes data in 128-bit blocks through a series of substitution,
+permutation, and key-mixing rounds. Network protocols carry ciphertext
+between hosts over TCP sockets, which guarantee reliable, ordered delivery
+of a byte stream but do not preserve message boundaries, so applications
+must define their own framing on top of the stream.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+transformations. AES was selected by the U.S. National Institute of
+Standards and Technology in 2001 as the successor to DES, after an open
+international competition. It supports key sizes of 128, 192, and 256 bits
+and processes data in 128-bit blocks through a series of substitution,
+permutation, and key-mixing rounds. Network protocols carry ciphertext
+between hosts over TCP sockets, which guarantee reliable, ordered delivery
+of a byte stream but do not preserve message boundaries, so applications
+must define their own framing on top of the stream.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+transformations. AES was selected by the U.S. National Institute of
+Standards and Technology in 2001 as the successor to DES, after an open
+international competition. It supports key sizes of 128, 192, and 256 bits
+and processes data in 128-bit blocks through a series of substitution,
+permutation, and key-mixing rounds. Network protocols carry ciphertext
+between hosts over TCP sockets, which guarantee reliable, ordered delivery
+of a byte stream but do not preserve message boundaries, so applications
+must define their own framing on top of the stream.
+
+Cryptography is the practice of securing information by transforming it into
+a form that only authorized parties can read. Classical ciphers such as
+Caesar and Playfair substitute or rearrange letters using a shared secret
+key, while modern block ciphers like the Advanced Encryption Standard (AES)
+operate on fixed-size blocks of binary data using well-studied mathematical
+tra
