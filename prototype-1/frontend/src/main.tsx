@@ -4,16 +4,21 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext";
 import { FlowProvider } from "./context/FlowContext";
+import { ToastProvider } from "./components/feedback/ToastProvider";
 import "./styles/base.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <FlowProvider>
-          <App />
-        </FlowProvider>
-      </AuthProvider>
+      {/* Outermost provider: Auth and Flow both raise toasts, so the toast
+          API has to exist above them. */}
+      <ToastProvider>
+        <AuthProvider>
+          <FlowProvider>
+            <App />
+          </FlowProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   </StrictMode>,
 );

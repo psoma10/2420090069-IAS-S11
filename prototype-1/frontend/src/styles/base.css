@@ -58,11 +58,41 @@ input, select, textarea, button {
   font-size: inherit;
 }
 
-/* Visible focus ring everywhere — never remove focus outlines. */
+/*
+  Visible focus ring everywhere — never remove focus outlines.
+
+  The second ring (box-shadow) is a dark halo drawn just outside the cyan
+  outline. On a light or accent-coloured surface (primary buttons, the
+  skip link, badges) a cyan-on-cyan outline would nearly vanish; the dark
+  halo guarantees the ring stays visible against ANY background in the
+  palette, which is what WCAG 2.4.11 (focus appearance) asks for.
+*/
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(4, 12, 24, 0.85);
   border-radius: var(--radius-sm);
+}
+
+/*
+  Mouse users who click a control shouldn't get a ring, but they also
+  shouldn't get a half-applied one. :focus without :focus-visible is
+  explicitly cleared so no component's own :focus styling leaks through.
+*/
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*
+  Windows High Contrast / forced-colors: system colours replace the
+  palette, and box-shadow is dropped entirely. Re-assert the outline
+  using a system colour keyword so focus survives.
+*/
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    box-shadow: none;
+  }
 }
 
 ::selection {
@@ -82,15 +112,30 @@ input, select, textarea, button {
   border: 0;
 }
 
+/*
+  Skip link. `fixed` rather than `absolute` so it lands at the top of the
+  VIEWPORT: the app shell is a flex/scrolling container, and an absolutely
+  positioned link would otherwise be offset by the nearest positioned
+  ancestor, or scroll out of sight on a long page.
+
+  Sized to a 44px target and given the same focus treatment as everything
+  else. It stays in the DOM (never display:none) so it remains the first
+  thing a keyboard user reaches on every page.
+*/
 .skip-link {
-  position: absolute;
+  position: fixed;
   left: var(--space-4);
-  top: -48px;
+  top: -64px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   background: var(--color-accent);
   color: var(--color-on-accent);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
   font-weight: var(--weight-semibold);
+  text-decoration: none;
+  box-shadow: var(--shadow-lg);
   z-index: var(--z-toast);
   transition: top var(--duration-base) var(--ease-standard);
 }
@@ -99,11 +144,67 @@ input, select, textarea, button {
   top: var(--space-4);
 }
 
+/*
+  The routed <main> receives programmatic focus after the skip link and on
+  route change, but it is not a user-styleable control — a focus ring
+  around the whole page reads as a rendering bug rather than as feedback.
+*/
+main:focus,
+main:focus-visible,
+[data-focus-target]:focus,
+[data-focus-target]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/*
+  Touch-target floor. On coarse pointers (touch), WCAG 2.5.8 asks for a
+  24px minimum and platform guidance for ~44px. This backstops any control
+  whose own CSS sets a smaller box — it raises the hit area without
+  changing the visual size of icon glyphs, since the padding box grows
+  rather than the icon.
+
+  It is a SAFETY NET, not a licence to ship 28px buttons: components should
+  still size their own targets correctly.
+*/
+@media (pointer: coarse) {
+  button,
+  a[href],
+  [role="button"],
+  [role="tab"],
+  summary,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+
+  button,
+  [role="button"] {
+    min-width: 44px;
+  }
+}
+
+/*
+  Reduced motion. The wildcard covers duration and iteration count, but a
+  long animation-delay or transition-delay would still leave an element
+  invisible/offset for seconds before snapping in — so delays are zeroed
+  too. This matters for the staggered reveal patterns used on the
+  dashboard and flow stepper, which drive stagger via delay, not duration.
+
+  scroll-behavior is set on html/body as well: the wildcard does not reach
+  the scrolling element reliably in every engine.
+*/
 @media (prefers-reduced-motion: reduce) {
+  html, body {
+    scroll-behavior: auto !important;
+  }
+
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
 }
