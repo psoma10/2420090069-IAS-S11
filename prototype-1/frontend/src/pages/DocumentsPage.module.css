@@ -1,0 +1,10 @@
+.sizeValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.timestamp {
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

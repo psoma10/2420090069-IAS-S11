@@ -120,6 +120,10 @@
   min-width: 0;
 }
 
+/* The bar itself stays full-bleed (border + blur span the viewport), but its
+   contents are held to the same centred column as .content so the page title
+   and user menu stay optically tied to the content instead of drifting to the
+   far edges on wide displays. */
 .header {
   position: sticky;
   top: 0;
@@ -127,7 +131,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 0 var(--space-8);
+  padding: 0 max(var(--space-8), (100% - var(--container-max)) / 2 + var(--space-8));
   background: color-mix(in srgb, var(--color-bg) 85%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border);
