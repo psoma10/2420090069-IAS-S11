@@ -67,13 +67,14 @@
 }
 
 .railBody {
-  max-width: 34ch;
+  max-width: 44ch;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
 .railTitle {
+  max-width: 20ch;
   font-size: var(--text-3xl);
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -88,6 +89,7 @@
 }
 
 .railCopy {
+  max-width: 38ch;
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
 }

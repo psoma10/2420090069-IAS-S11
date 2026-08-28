@@ -5,7 +5,7 @@
   justify-content: center;
   text-align: center;
   gap: var(--space-3);
-  padding: var(--space-12) var(--space-6);
+  padding: var(--space-10) var(--space-6);
   /* Faint radial wash so the block reads as a designed state rather than a
      region that failed to render. */
   background:
@@ -15,8 +15,8 @@
   border-radius: var(--radius-lg);
 }
 
-.sm { padding: var(--space-8) var(--space-4); gap: var(--space-2); }
-.lg { padding: var(--space-16) var(--space-8); }
+.sm { padding: var(--space-6) var(--space-4); gap: var(--space-2); }
+.lg { padding: var(--space-12) var(--space-8); }
 
 /* Bare variant: no card chrome, for use inside an existing Card. */
 .bare {
