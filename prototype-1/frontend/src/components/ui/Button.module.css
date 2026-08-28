@@ -81,7 +81,7 @@
 
 .danger {
   background: var(--color-danger);
-  color: #1a0505;
+  color: var(--color-on-danger);
 }
 .danger:hover:not(:disabled) {
   background: var(--color-danger-hover);

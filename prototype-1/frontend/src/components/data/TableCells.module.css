@@ -67,3 +67,14 @@
   height: 14px;
   margin-left: auto;
 }
+
+/* Touch devices: the row link wraps a single line of text and lands at ~28px,
+   under the 44px minimum tap target (WCAG 2.5.8). Grow the hit area vertically
+   without changing the cell's visual rhythm. Coarse pointers only. */
+@media (pointer: coarse) {
+  .rowLink {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

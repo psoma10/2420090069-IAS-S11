@@ -108,7 +108,7 @@ export function DocumentsPage() {
       key: "filename",
       header: "File",
       sortable: true,
-      width: "30%",
+      width: "auto",
       skeletonWidth: "78%",
       render: (row) => <FileCell filename={row.filename} to={`/documents/${row.id}`} />,
     },
@@ -257,7 +257,7 @@ export function DocumentsPage() {
               loading={loading}
               sort={sort}
               onSortChange={setSort}
-              minWidth="880px"
+              minWidth="820px"
               onRowActivate={(row) => navigate(`/documents/${row.id}`)}
               emptyState={emptyState}
             />

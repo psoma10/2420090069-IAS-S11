@@ -15,6 +15,7 @@ import { AlgorithmsPage } from "./pages/AlgorithmsPage";
 import { ServerMonitorPage } from "./pages/ServerMonitorPage";
 import { ActivityPage } from "./pages/ActivityPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import FeedbackSmoke from "./pages/__FeedbackSmoke";
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
         </Route>
       </Route>
 
+      <Route path="/__smoke" element={<FeedbackSmoke />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

@@ -77,3 +77,11 @@
 .active .chevron {
   color: var(--color-accent);
 }
+
+/* Touch devices: the 38px control is below the 44px minimum tap target
+   (WCAG 2.5.8). Coarse pointers only, so mouse density is unchanged. */
+@media (pointer: coarse) {
+  .select {
+    min-height: 44px;
+  }
+}

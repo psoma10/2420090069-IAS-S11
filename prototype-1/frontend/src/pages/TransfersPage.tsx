@@ -111,7 +111,7 @@ export function TransfersPage() {
       key: "filename",
       header: "File",
       sortable: true,
-      width: "26%",
+      width: "auto",
       skeletonWidth: "80%",
       render: (row) => <FileCell filename={row.filename} to={`/transfers/${row.id}`} />,
     },
@@ -280,7 +280,7 @@ export function TransfersPage() {
               loading={loading}
               sort={sort}
               onSortChange={setSort}
-              minWidth="1040px"
+              minWidth="980px"
               onRowActivate={(row) => navigate(`/transfers/${row.id}`)}
               emptyState={emptyState}
             />

@@ -22,18 +22,17 @@ export function AppShell() {
   const { user, logout } = useAuth();
   const { isOffline } = useConnectivity();
   const { pathname } = useLocation();
-  const [navOpen, setNavOpen] = useState(false);
+  // The drawer stores the route it was opened on rather than a plain boolean.
+  // Any navigation (link tap, back button, redirect) makes that value stale,
+  // so the drawer closes during render instead of in a post-render effect —
+  // no second render pass, and no frame where it lingers over new content.
+  const [openedAt, setOpenedAt] = useState<string | null>(null);
+  const navOpen = openedAt === pathname;
 
   const activeItem = findActiveNavItem(pathname);
   const pageTitle = activeItem?.label ?? "CyberVault";
 
-  const closeNav = useCallback(() => setNavOpen(false), []);
-
-  // Close the drawer whenever the route changes (link taps, back button,
-  // programmatic redirects) so it never lingers over new content.
-  useEffect(() => {
-    setNavOpen(false);
-  }, [pathname]);
+  const closeNav = useCallback(() => setOpenedAt(null), []);
 
   // Resizing up to desktop makes the drawer redundant — drop it so focus trap
   // and scroll lock are released along with it.
@@ -41,7 +40,7 @@ export function AppShell() {
     if (!navOpen) return;
     const query = window.matchMedia("(min-width: 1024px)");
     const handleChange = (event: MediaQueryListEvent) => {
-      if (event.matches) setNavOpen(false);
+      if (event.matches) setOpenedAt(null);
     };
     query.addEventListener("change", handleChange);
     return () => query.removeEventListener("change", handleChange);
@@ -80,7 +79,7 @@ export function AppShell() {
             type="button"
             id={MENU_TRIGGER_ID}
             className={styles.menuButton}
-            onClick={() => setNavOpen((open) => !open)}
+            onClick={() => setOpenedAt((current) => (current === pathname ? null : pathname))}
             aria-expanded={navOpen}
             aria-haspopup="dialog"
             aria-controls="primary-nav-drawer"

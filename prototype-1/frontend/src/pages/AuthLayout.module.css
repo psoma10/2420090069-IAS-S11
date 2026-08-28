@@ -362,3 +362,13 @@
     gap: var(--space-2);
   }
 }
+
+/* Touch devices: inline auth links ("Create one", "Sign in") are only ~16px
+   tall. Padding lifts them to the 44px minimum tap target (WCAG 2.5.8)
+   without shifting the surrounding sentence. Coarse pointers only. */
+@media (pointer: coarse) {
+  .link {
+    display: inline-block;
+    padding-block: var(--space-3);
+  }
+}

@@ -56,6 +56,14 @@
   --color-info: #818cf8;
   --color-info-muted: rgba(129, 140, 248, 0.12);
 
+  /* Foreground for text/icons sitting ON a solid semantic fill (filled
+     buttons, solid status chips). These are near-black tints of their own
+     hue rather than pure #000, and each clears AAA on its own fill:
+     danger 7.11:1, success 9.83:1, warning 11.11:1. */
+  --color-on-danger: #1a0505;
+  --color-on-success: #04140e;
+  --color-on-warning: #1a1204;
+
   /* ---- Color: algorithm identity (badges only, not decorative) ---- */
   --color-algo-classical: #a78bfa;
   --color-algo-educational: #fbbf24;
@@ -68,6 +76,11 @@
   /* Type scale — NEVER hardcode a font-size in a component. If a size you
      need is missing, add it here rather than writing `font-size: 17px`.
      Each step lists its single intended job so 8 screens stay consistent. */
+  /* 11px. Uppercase micro-labels ONLY (stat tile eyebrows, step numbers,
+     axis ticks) where the caps + letter-spacing keeps it legible. Never
+     use for sentence-case body copy. Added because screens were reaching
+     for raw 10-11px values that the scale didn't cover. */
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;     /* 12px — badges, captions, table meta, hints     */
   --text-sm: 0.8125rem;   /* 13px — labels, buttons, dense table cells      */
   --text-base: 0.9375rem; /* 15px — DEFAULT body copy (set on <body>)       */
