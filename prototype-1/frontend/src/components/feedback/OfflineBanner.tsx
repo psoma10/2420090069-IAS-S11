@@ -80,8 +80,10 @@ export function OfflineBanner() {
       </div>
       <div className={styles.actions}>
         <Button size="sm" variant="secondary" onClick={() => void retry()} loading={checking}>
-          <RetryIcon size={14} />
-          RETRY
+          <span className={styles.buttonInner}>
+            <RetryIcon size={14} />
+            RETRY
+          </span>
         </Button>
       </div>
     </div>

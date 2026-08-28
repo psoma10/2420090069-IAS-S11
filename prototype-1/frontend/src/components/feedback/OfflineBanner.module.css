@@ -103,3 +103,13 @@
   .actions { width: 100%; }
   .actions > * { flex: 1; }
 }
+
+/* Button renders its children inside a single <span>, so an icon and a label
+   passed as siblings become one flex item and stack. This re-establishes the
+   horizontal row inside that wrapper. */
+.buttonInner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}

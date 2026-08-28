@@ -97,8 +97,10 @@ export function ErrorBanner({
           <div className={styles.actions}>
             {onRetry && (
               <Button size="sm" variant="secondary" onClick={onRetry} loading={retrying}>
-                <RetryIcon size={14} />
-                {retryLabel}
+                <span className={styles.buttonInner}>
+                  <RetryIcon size={14} />
+                  {retryLabel}
+                </span>
               </Button>
             )}
             {actions}
