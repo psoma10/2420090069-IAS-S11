@@ -1,0 +1,66 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
+  /* Faint radial wash so the block reads as a designed state rather than a
+     region that failed to render. */
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, var(--color-accent-muted), transparent 70%),
+    var(--color-bg-elevated);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.sm { padding: var(--space-8) var(--space-4); gap: var(--space-2); }
+.lg { padding: var(--space-16) var(--space-8); }
+
+/* Bare variant: no card chrome, for use inside an existing Card. */
+.bare {
+  background: none;
+  border: none;
+  padding: var(--space-10) var(--space-4);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--space-1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-tertiary);
+  box-shadow: var(--shadow-sm);
+}
+
+.sm .iconWrap { width: 40px; height: 40px; }
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.sm .title { font-size: var(--text-md); }
+
+.description {
+  max-width: 42ch;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+}
