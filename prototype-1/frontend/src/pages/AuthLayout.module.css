@@ -1,0 +1,364 @@
+/*
+  Shared chrome for the two unauthenticated screens (Login, Register).
+  These render outside AppShell, so the full-page framing lives here.
+  Split layout: brand/marketing rail on the left, form card on the right,
+  collapsing to a single stacked column below 900px.
+*/
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: var(--color-bg);
+}
+
+/* ---------- Left rail: brand + security framing ---------- */
+
+.rail {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-12) var(--space-12) var(--space-10);
+  background: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border);
+  isolation: isolate;
+}
+
+/* Layered radial washes + a faint grid give the surface texture without
+   resorting to a flat fill. Purely decorative, so aria-hidden in markup. */
+.railGlow {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(120% 90% at 8% 0%, rgba(34, 211, 238, 0.16), transparent 58%),
+    radial-gradient(90% 70% at 100% 100%, rgba(129, 140, 248, 0.14), transparent 62%);
+}
+
+.railGrid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.28;
+  mask-image: radial-gradient(80% 60% at 20% 25%, #000 20%, transparent 78%);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+}
+
+.brandMark {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-muted);
+}
+
+.railBody {
+  max-width: 34ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.railTitle {
+  font-size: var(--text-3xl);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.railTagline {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.railCopy {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Pipeline diagram — mirrors the PRD's plaintext -> cipher -> server flow. */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.pipelineStep {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  transition: border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.pipelineStep:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-secondary);
+}
+
+.pipelineArrow {
+  color: var(--color-border-strong);
+}
+
+.railFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- Right pane: the form itself ---------- */
+
+.pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: cardEnter var(--duration-slow) var(--ease-standard) both;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Server-level error summary. Complements — never replaces — the
+   per-field messages rendered by Input. */
+.banner {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger-muted);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  animation: bannerEnter var(--duration-base) var(--ease-standard) both;
+}
+
+.bannerOffline {
+  border-color: var(--color-warning);
+  background: var(--color-warning-muted);
+}
+
+@keyframes bannerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.bannerIcon {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  color: var(--color-danger);
+}
+
+.bannerOffline .bannerIcon {
+  color: var(--color-warning);
+}
+
+.bannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bannerTitle {
+  font-weight: var(--weight-semibold);
+}
+
+.bannerText {
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.footer {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.link {
+  color: var(--color-accent);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.link:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:active {
+  color: var(--color-accent-active);
+}
+
+/* Password field + reveal toggle share a row. */
+.passwordRow {
+  position: relative;
+}
+
+.reveal {
+  position: absolute;
+  top: 30px;
+  right: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.reveal:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+
+.reveal:active {
+  background: var(--color-surface-active);
+}
+
+.reveal:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Password strength meter (register only). */
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: calc(var(--space-1) * -1);
+}
+
+.meterTrack {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.meterSegment {
+  height: 3px;
+  flex: 1;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+
+.meterSegmentWeak { background: var(--color-danger); }
+.meterSegmentFair { background: var(--color-warning); }
+.meterSegmentStrong { background: var(--color-success); }
+
+.meterLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-8) var(--space-6);
+    gap: var(--space-8);
+  }
+
+  .railBody {
+    max-width: none;
+  }
+
+  .railTitle {
+    font-size: var(--text-2xl);
+  }
+
+  .railFooter {
+    display: none;
+  }
+
+  .pane {
+    padding: var(--space-8) var(--space-5) var(--space-12);
+  }
+}
+
+@media (max-width: 480px) {
+  .rail {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .pipeline {
+    font-size: 10px;
+    gap: var(--space-2);
+  }
+}

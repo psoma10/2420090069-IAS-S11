@@ -4,6 +4,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../lib/api";
+import { describeError, isOfflineCode } from "../lib/errorMessages";
 import styles from "./AuthLayout.module.css";
 
 type Field = "name" | "email" | "password";
@@ -119,20 +120,14 @@ export function RegisterPage() {
           offline: false,
         });
         refs.email.current?.focus();
-      } else if (err instanceof ApiError && err.code === "VALIDATION_ERROR") {
-        setServerError({ title: "Check your details", text: err.message, offline: false });
-      } else if (err instanceof ApiError && err.code === "NETWORK_ERROR") {
+      } else if (err instanceof ApiError && isOfflineCode(err.code)) {
         setServerError({
           title: "Can't reach the server",
           text: "The CyberVault backend is not responding. Confirm it is running on port 5000, then retry.",
           offline: true,
         });
       } else {
-        setServerError({
-          title: "Something went wrong",
-          text: err instanceof ApiError ? err.message : "An unexpected error interrupted registration. Please try again.",
-          offline: false,
-        });
+        setServerError({ title: "Registration failed", text: describeError(err), offline: false });
       }
     } finally {
       setSubmitting(false);
