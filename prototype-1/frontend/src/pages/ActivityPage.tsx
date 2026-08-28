@@ -109,11 +109,9 @@ export function ActivityPage() {
             title="No activity recorded yet"
             description="Uploads, encryptions and transfers are logged here as you use CyberVault."
             action={
-              <Button variant="primary" size="sm" as-child={undefined} onClick={undefined}>
-                <Link to="/upload" className={styles.emptyLink}>
-                  Go to Secure Upload
-                </Link>
-              </Button>
+              <Link to="/upload" className={styles.emptyLink}>
+                Go to Secure Upload
+              </Link>
             }
           />
         )}

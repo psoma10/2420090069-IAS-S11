@@ -1,0 +1,41 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(34, 211, 238, 0.05), transparent 70%),
+    var(--color-bg-elevated);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-active);
+  color: var(--color-text-tertiary);
+}
+
+.title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.description {
+  max-width: 34ch;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.action {
+  margin-top: var(--space-3);
+}

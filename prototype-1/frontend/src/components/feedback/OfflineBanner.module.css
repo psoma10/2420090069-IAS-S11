@@ -1,0 +1,105 @@
+/* Sticks below the app header so it stays visible while scrolling a long
+   document or transfer list. */
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-danger) 18%, var(--color-bg-elevated)),
+    var(--color-bg-elevated) 70%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
+  box-shadow: var(--shadow-md);
+  animation: drop-in var(--duration-base) var(--ease-standard);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--color-danger);
+}
+
+/* Slow pulse marks the state as live and unresolved. It's decorative — the
+   text says everything — so the reduced-motion clamp in base.css can kill it
+   with nothing lost. */
+.pulse {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  animation: pulse 2s var(--ease-standard) infinite;
+}
+
+.copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* PRD section 17 wording: "SERVER OFFLINE". */
+.title {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+}
+
+.message {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.since {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Reconnected confirmation — same slot, success tone, self-retiring. */
+.restored {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-success) 16%, var(--color-bg-elevated)),
+    var(--color-bg-elevated) 70%
+  );
+  border-bottom-color: color-mix(in srgb, var(--color-success) 45%, transparent);
+}
+.restored .icon,
+.restored .title { color: var(--color-success); }
+.restored .pulse { background: var(--color-success); animation: none; }
+
+@keyframes drop-in {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+@media (max-width: 640px) {
+  .banner {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: var(--space-3) var(--space-4);
+  }
+  .actions { width: 100%; }
+  .actions > * { flex: 1; }
+}

@@ -1,0 +1,128 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.list > li + li {
+  border-top: 1px solid var(--color-border);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.row:hover {
+  background: var(--color-surface-hover);
+  transform: translateX(2px);
+}
+
+.row:active {
+  background: var(--color-surface-active);
+}
+
+.primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.filename {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.row:hover .filename {
+  color: var(--color-accent);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.transferId {
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+}
+
+.trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.time {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  color: var(--color-text-tertiary);
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.row:hover .chevron {
+  transform: translateX(2px);
+  color: var(--color-accent);
+}
+
+.emptyLink {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.emptyLink:hover {
+  border-bottom-color: currentColor;
+}
+
+/* Narrow screens: stack the row so nothing overflows at 320px. */
+@media (max-width: 640px) {
+  .row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .trailing {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .chevron {
+    margin-left: auto;
+  }
+}
