@@ -1,0 +1,17 @@
+# Claude Code / agent files — never commit
+.claude/
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+
+# Received/generated artifacts (kept locally, not versioned)
+received/server/*
+received/client/*
