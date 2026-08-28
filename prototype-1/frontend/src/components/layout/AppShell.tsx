@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { OfflineBanner } from "../feedback/OfflineBanner";
+import { useConnectivity } from "../feedback/connectivityContext";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Breadcrumbs } from "./Breadcrumbs";
@@ -18,6 +20,7 @@ const MENU_TRIGGER_ID = "primary-nav-trigger";
  */
 export function AppShell() {
   const { user, logout } = useAuth();
+  const { isOffline } = useConnectivity();
   const { pathname } = useLocation();
   const [navOpen, setNavOpen] = useState(false);
 
@@ -105,12 +108,14 @@ export function AppShell() {
           </div>
 
           <div className={styles.headerActions}>
-            {/* Placeholder status — real server health is owned by the
-                dashboard/API integration work, not the shell. */}
+            {/* Live reachability from <ConnectivityProvider>, which probes
+                /api/server/status and also listens to failures reported by
+                pages. The OfflineBanner below the header shows the full
+                PRD section 17 message and a RETRY action. */}
             <span className={styles.serverStatus}>
               <span className={styles.serverStatusLabel}>Server</span>
-              <Badge tone="success" dot>
-                ONLINE
+              <Badge tone={isOffline ? "danger" : "success"} dot>
+                {isOffline ? "OFFLINE" : "ONLINE"}
               </Badge>
             </span>
 
@@ -124,6 +129,8 @@ export function AppShell() {
             </Button>
           </div>
         </header>
+
+        <OfflineBanner />
 
         <main id="main-content" className={styles.content} tabIndex={-1}>
           <Outlet />

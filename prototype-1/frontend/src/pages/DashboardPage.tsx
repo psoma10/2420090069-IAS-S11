@@ -43,7 +43,6 @@ export function DashboardPage() {
   if (status === "error" || !data) {
     return (
       <div className={styles.page}>
-        <h1 className={styles.title}>Dashboard</h1>
         <Card padding="lg" className={styles.errorCard}>
           <span className={styles.errorIcon} aria-hidden="true">
             <AlertIcon />
@@ -69,7 +68,7 @@ export function DashboardPage() {
       <header className={styles.header}>
         <div className={styles.headerText}>
           <p className={styles.eyebrow}>Secure document exchange</p>
-          <h1 className={styles.title}>{firstName ? `Welcome back, ${firstName}` : "Dashboard"}</h1>
+          <h2 className={styles.title}>{firstName ? `Welcome back, ${firstName}` : "Overview"}</h2>
           <div className={styles.statusLine}>
             {/* Colour + dot + explicit word — status is never colour-only. */}
             <Badge tone={isOnline ? "success" : "danger"} dot>
@@ -95,9 +94,9 @@ export function DashboardPage() {
 
       {/* --- Stat row: system state in under three seconds --- */}
       <section aria-labelledby="stats-heading">
-        <h2 id="stats-heading" className="sr-only">
+        <h3 id="stats-heading" className="sr-only">
           System overview
-        </h2>
+        </h3>
         <dl className={styles.statGrid}>
           <StatCard
             label="Documents"
@@ -134,7 +133,7 @@ export function DashboardPage() {
       <div className={styles.panels}>
         <Card padding="lg" className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Recent transfers</h2>
+            <h3 className={styles.panelTitle}>Recent transfers</h3>
             <Link to="/transfers" className={styles.panelLink}>
               View all
             </Link>
@@ -144,7 +143,7 @@ export function DashboardPage() {
 
         <Card padding="lg" className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Recent activity</h2>
+            <h3 className={styles.panelTitle}>Recent activity</h3>
             <Link to="/activity" className={styles.panelLink}>
               View all
             </Link>

@@ -107,7 +107,17 @@ export function TransferMonitorPage() {
       setTransfer(data);
     } catch (err) {
       if (isOfflineError(err) || (err instanceof ApiError && err.code === "TRANSFER_NOT_FOUND")) {
-        setTransfer(MOCK_TRANSFER_DETAIL);
+        // Rewind the fixture to the RECEIVED state so the pipeline demo starts
+        // mid-flow and the Decrypt action is actually exercisable. The fixture
+        // itself is shared and must not be mutated.
+        setTransfer({
+          ...MOCK_TRANSFER_DETAIL,
+          status: "RECEIVED",
+          decrypted_content: undefined,
+          stages: MOCK_TRANSFER_DETAIL.stages.filter(
+            (s) => s.stage !== "DECRYPTING" && s.stage !== "COMPLETED",
+          ),
+        });
         setUsingSample(true);
       } else {
         setError(err instanceof ApiError ? err.message : "This transfer could not be loaded.");
@@ -205,10 +215,20 @@ export function TransferMonitorPage() {
     );
   }
 
-  // Merge server-reported stages with the decrypt result and any in-flight
-  // overlay. Later sources win, so the newest known state is what renders.
+  // Merge the reported stages into one timeline. Later sources win, so the
+  // newest known state is what renders.
+  //
+  // While a decrypt is in flight the overlay must be the furthest-along entry,
+  // so any stage at or after DECRYPTING is dropped first. Without this the
+  // sample transfer (whose fixture already reports all five stages as done)
+  // would render the impossible pair "Decrypting: active / Completed: done".
+  const DECRYPT_ONWARD = new Set(["DECRYPTING", "COMPLETED"]);
+  const baseStages = pendingStage
+    ? transfer.stages.filter((s) => !DECRYPT_ONWARD.has(s.stage))
+    : transfer.stages;
+
   const stages: TransferStage[] = [
-    ...transfer.stages,
+    ...baseStages,
     ...(decrypted?.stages ?? []),
     ...(decrypted
       ? ([
