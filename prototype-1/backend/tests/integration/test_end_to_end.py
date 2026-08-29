@@ -330,3 +330,66 @@ def test_activity_has_one_shape_everywhere_it_appears(client):
     for entry in dashboard + feed:
         assert "at" in entry, "the timestamp field is `at` (API_CONTRACT.md 3.8)"
         assert "created_at" not in entry, "raw column name must not leak through"
+
+
+def test_documents_survive_the_filesystem_being_wiped(client, app):
+    """Documents must not depend on local disk.
+
+    The original design stored only a path and wrote the bytes to
+    storage/uploads. That loses every document on a host with an ephemeral
+    filesystem: a redeploy wipes the disk, the rows survive, and each one then
+    points at bytes that are gone. This reproduces that by deleting the upload
+    directory outright and asserting every read path still works.
+    """
+    import shutil
+    from pathlib import Path
+
+    register(client)
+    original = "This document must outlive the container it was uploaded to."
+    document = upload(client, original, "durable.txt")
+
+    assert client.get(f"/api/documents/{document['id']}").status_code == 200
+
+    upload_dir = Path(Config.UPLOAD_DIR)
+    shutil.rmtree(upload_dir, ignore_errors=True)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    detail = client.get(f"/api/documents/{document['id']}")
+    assert detail.status_code == 200, "the document must not vanish with the disk"
+    assert detail.get_json()["data"]["content"] == original
+
+    download = client.get(f"/api/documents/{document['id']}/download")
+    assert download.status_code == 200
+    assert download.get_data(as_text=True) == original
+
+    # The whole encrypt/transfer/decrypt cycle still runs with no files on disk.
+    key = make_key(client, "aes", 256)
+    transfer = client.post("/api/transfers", json={
+        "document_id": document["id"], "algorithm": "aes", "key": key,
+    })
+    assert transfer.status_code == 201, transfer.get_json()
+    result = client.post(
+        f"/api/transfers/{transfer.get_json()['data']['id']}/decrypt", json={}
+    )
+    assert result.get_json()["data"]["plaintext"] == original
+
+    # And so does a public share link.
+    share = client.post(f"/api/documents/{document['id']}/shares",
+                        json={}).get_json()["data"]
+    visitor = app.test_client()
+    shared = visitor.get(f"/api/share/{share['token']}")
+    assert shared.status_code == 200
+    assert shared.get_json()["data"]["content"] == original
+
+
+def test_a_listing_does_not_carry_document_bodies(client):
+    """Content is fetched on demand, not dragged through every listing."""
+    register(client)
+    for index in range(3):
+        upload(client, f"Body number {index}. " * 50, f"doc{index}.txt")
+
+    listing = client.get("/api/documents").get_json()["data"]
+    assert listing["total"] == 3
+    for row in listing["documents"]:
+        assert "content" not in row, "listings must not include document bodies"
+        assert "stored_name" not in row, "the storage layout is not the client's business"
