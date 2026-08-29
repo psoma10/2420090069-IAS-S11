@@ -307,3 +307,26 @@ def test_no_response_ever_contains_the_encryption_key(client):
     for body in bodies:
         assert key not in body, "the encryption key must never appear in a response"
         assert "encryption_key" not in body
+
+
+def test_activity_has_one_shape_everywhere_it_appears(client):
+    """The same record must not change field names between endpoints.
+
+    Activity is returned both embedded in the dashboard and from its own
+    feed. They went out of step once — the dashboard passed raw rows with
+    `created_at` while the feed mapped them to `at` — so both now go through
+    one shaping function and this test holds them together.
+    """
+    register(client)
+    upload(client, "Shape check.", "shape.txt")
+
+    dashboard = client.get("/api/dashboard").get_json()["data"]["recent_activity"]
+    feed = client.get("/api/activity").get_json()["data"]["activity"]
+
+    assert dashboard and feed, "both endpoints must return activity"
+    assert sorted(dashboard[0]) == sorted(feed[0]), (
+        "activity entries must have identical fields in both endpoints"
+    )
+    for entry in dashboard + feed:
+        assert "at" in entry, "the timestamp field is `at` (API_CONTRACT.md 3.8)"
+        assert "created_at" not in entry, "raw column name must not leak through"

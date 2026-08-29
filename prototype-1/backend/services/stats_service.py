@@ -26,6 +26,23 @@ from services.transfer_service import TransferService
 _STARTED_AT = time.time()
 
 
+def _activity_entry(row: dict) -> dict:
+    """Shape one activity row for the API.
+
+    Both the dashboard and the activity feed go through this, so the same
+    record cannot arrive under two different field names depending on which
+    endpoint returned it. The timestamp is `at`, as API_CONTRACT.md §3.8 says.
+    """
+    return {
+        "id": row["id"],
+        "action": row["action"],
+        "message": row["message"],
+        "document_id": row.get("document_id"),
+        "transfer_id": row.get("transfer_id"),
+        "at": row["created_at"],
+    }
+
+
 class StatsService:
     """Read-only aggregation over the repositories."""
 
@@ -58,7 +75,10 @@ class StatsService:
             "success_rate": success_rate,
             "server_status": "online",
             "recent_transfers": recent_transfers,
-            "recent_activity": ActivityRepository.recent_for_user(user_id, limit=10),
+            "recent_activity": [
+                _activity_entry(row)
+                for row in ActivityRepository.recent_for_user(user_id, limit=10)
+            ],
         }
 
     @staticmethod
@@ -89,17 +109,7 @@ class StatsService:
     def activity(user_id: int, *, limit: int = 50, offset: int = 0) -> dict:
         rows, total = ActivityRepository.list_for_user(user_id, limit=limit, offset=offset)
         return {
-            "activity": [
-                {
-                    "id": row["id"],
-                    "action": row["action"],
-                    "message": row["message"],
-                    "document_id": row.get("document_id"),
-                    "transfer_id": row.get("transfer_id"),
-                    "at": row["created_at"],
-                }
-                for row in rows
-            ],
+            "activity": [_activity_entry(row) for row in rows],
             "total": total,
         }
 
