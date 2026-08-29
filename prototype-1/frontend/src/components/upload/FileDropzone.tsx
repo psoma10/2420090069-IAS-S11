@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type DragEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { Button } from "../ui/Button";
 import styles from "./FileDropzone.module.css";
 import { ACCEPT, dragLooksAcceptable, formatSize, type Rejection } from "./fileValidation";
@@ -25,12 +25,45 @@ interface FileDropzoneProps {
 export function FileDropzone({ file, rejection, limit, disabled = false, onSelect }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
+  // True from the moment we ask for a file chooser until the browser hands
+  // focus back. The chooser is an OS-level modal that the page cannot see or
+  // close, so without this latch every extra click/Enter/Space stacks another
+  // dialog on top of the last one and the user ends up unable to pick at all.
+  const pickerOpen = useRef(false);
   const [dragState, setDragState] = useState<"none" | "accept" | "reject">("none");
   const descriptionId = useId();
 
+  function releasePicker() {
+    pickerOpen.current = false;
+  }
+
+  useEffect(() => {
+    // Two independent "the dialog went away" signals, because neither alone
+    // covers every browser: `cancel` fires when the user dismisses without
+    // choosing (not in React's typings yet, hence the imperative listener),
+    // and window focus covers selection plus any browser that skips `cancel`.
+    const input = inputRef.current;
+    input?.addEventListener("cancel", releasePicker);
+    window.addEventListener("focus", releasePicker);
+    return () => {
+      input?.removeEventListener("cancel", releasePicker);
+      window.removeEventListener("focus", releasePicker);
+    };
+  }, [file]);
+
   function openPicker() {
-    if (disabled) return;
+    if (disabled || pickerOpen.current) return;
+    pickerOpen.current = true;
     inputRef.current?.click();
+  }
+
+  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
+    // Chrome fires change before the window focus event, so release here too
+    // rather than relying on focus alone.
+    releasePicker();
+    const picked = event.target.files?.[0] ?? null;
+    if (picked) onSelect(picked);
+    event.target.value = ""; // Allow re-picking the same filename.
   }
 
   function handleDragEnter(event: DragEvent<HTMLButtonElement>) {
@@ -120,11 +153,7 @@ export function FileDropzone({ file, rejection, limit, disabled = false, onSelec
           className={styles.hiddenInput}
           tabIndex={-1}
           disabled={disabled}
-          onChange={(e) => {
-            const picked = e.target.files?.[0] ?? null;
-            if (picked) onSelect(picked);
-            e.target.value = ""; // Allow re-picking the same filename.
-          }}
+          onChange={handleInputChange}
         />
       </div>
     );
@@ -182,11 +211,7 @@ export function FileDropzone({ file, rejection, limit, disabled = false, onSelec
         className={styles.hiddenInput}
         tabIndex={-1}
         disabled={disabled}
-        onChange={(e) => {
-          const picked = e.target.files?.[0] ?? null;
-          if (picked) onSelect(picked);
-          e.target.value = "";
-        }}
+        onChange={handleInputChange}
       />
     </>
   );
