@@ -8,6 +8,8 @@ import { formatBytes } from "../components/encryption/EncryptionStats";
 import { StagePipeline } from "../components/transfer/StagePipeline";
 import { ApiError, api } from "../lib/api";
 import { MOCK_TRANSFER_DETAIL } from "../lib/mockData";
+import { useFlow } from "../context/FlowContext";
+import { formatAlgorithm } from "../lib/format";
 import type { DecryptResult, TransferDetail, TransferStage } from "../types/api";
 import styles from "./TransferMonitorPage.module.css";
 
@@ -75,6 +77,7 @@ export function TransferMonitorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { reachStep } = useFlow();
   const handoff = (location.state ?? {}) as { transfer?: TransferDetail; key?: string };
 
   const [transfer, setTransfer] = useState<TransferDetail | null>(handoff.transfer ?? null);
@@ -100,9 +103,9 @@ export function TransferMonitorPage() {
     };
   }, []);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (options?: { background?: boolean }) => {
     if (!id) return;
-    setLoading(true);
+    if (!options?.background) setLoading(true);
     setError(null);
     setUsingSample(false);
 
@@ -110,6 +113,12 @@ export function TransferMonitorPage() {
       const data = (await api.transfers.get(id)) as TransferDetail;
       setTransfer(data);
     } catch (err) {
+      // A failed background refresh must not clobber the real transfer we
+      // already have from the create response — only degrade to the sample
+      // fixture when there was nothing real to show in the first place.
+      if (options?.background) {
+        return;
+      }
       if (isOfflineError(err) || (err instanceof ApiError && err.code === "TRANSFER_NOT_FOUND")) {
         // Rewind the fixture to the RECEIVED state so the pipeline demo starts
         // mid-flow and the Decrypt action is actually exercisable. The fixture
@@ -132,9 +141,13 @@ export function TransferMonitorPage() {
   }, [id]);
 
   useEffect(() => {
-    // A transfer handed over from the preview screen is already current.
     if (handoff.transfer) {
+      // The create response (POST /api/transfers) omits ciphertext — it only
+      // carries stages/status. Render it immediately so the pipeline appears
+      // instantly, but still fetch the full GET /api/transfers/{id} detail
+      // in the background to backfill ciphertext/ciphertext_preview.
       setLoading(false);
+      void load({ background: true });
       return;
     }
     void load();
@@ -174,6 +187,7 @@ export function TransferMonitorPage() {
       const result = (await api.transfers.decrypt(transfer.id, handoff.key)) as DecryptResult;
       setDecrypted(result);
       setPendingStage(null);
+      reachStep("server-receive");
     } catch (err) {
       setDecryptError(
         err instanceof ApiError ? err.message : "The document could not be decrypted.",
@@ -201,7 +215,7 @@ export function TransferMonitorPage() {
   if (error || !transfer) {
     return (
       <div className={styles.page}>
-        <h1 className={styles.title}>Transfer Monitor</h1>
+        <h2 className={styles.title}>Transfer Monitor</h2>
         <div className={[styles.banner, styles.bannerDanger].join(" ")} role="alert">
           <AlertIcon />
           <span>
@@ -254,7 +268,7 @@ export function TransferMonitorPage() {
       <header className={styles.header}>
         <div className={styles.headerText}>
           <span className={styles.eyebrow}>{transfer.transfer_id}</span>
-          <h1 className={styles.title}>{transfer.filename}</h1>
+          <h2 className={styles.title}>{transfer.filename}</h2>
         </div>
         <div className={styles.headerMeta}>
           <Badge tone={STATUS_TONE[status] ?? "neutral"} dot>
@@ -279,18 +293,23 @@ export function TransferMonitorPage() {
 
       <div className={styles.body}>
         <Card padding="lg">
-          <h2 className={styles.panelTitle}>Secure Transfer</h2>
+          <h3 className={styles.panelTitle}>Secure Transfer</h3>
           <StagePipeline
             stages={stages}
             failed={failed}
             senderLabel={isClientToServer ? "Client" : "Server"}
             receiverLabel={isClientToServer ? "Server" : "Client"}
           >
-            <span className={styles.actionHint}>
-              Encryption took{" "}
-              <strong>{transfer.encryption_time_ms.toFixed(2)} ms</strong>
-            </span>
-            {decrypted && (
+            {/* encryption_time_ms is absent on some transfer sources (e.g. a
+                fetch via GET rather than the create response) — never crash
+                the page over a missing timing figure. */}
+            {typeof transfer.encryption_time_ms === "number" && (
+              <span className={styles.actionHint}>
+                Encryption took{" "}
+                <strong>{transfer.encryption_time_ms.toFixed(2)} ms</strong>
+              </span>
+            )}
+            {decrypted && typeof decrypted.decryption_time_ms === "number" && (
               <span className={styles.actionHint}>
                 Decryption took{" "}
                 <strong>{decrypted.decryption_time_ms.toFixed(2)} ms</strong>
@@ -301,7 +320,7 @@ export function TransferMonitorPage() {
 
         <Card padding="lg">
           <div className={styles.payloadCard}>
-            <h2 className={styles.panelTitle}>Payload</h2>
+            <h3 className={styles.panelTitle}>Payload</h3>
 
             <PlaintextCiphertextPanel
               reversed
@@ -316,10 +335,18 @@ export function TransferMonitorPage() {
               emptyCiphertextLabel="No ciphertext recorded for this transfer."
             />
 
-            {decrypted?.integrity_verified && (
-              <span className={styles.integrity}>
+            {decrypted && decrypted.integrity_verified !== null && (
+              <span className={[styles.integrity, decrypted.integrity_verified ? styles.integrityOk : styles.integrityFailed].join(" ")}>
                 <ShieldCheckIcon />
-                Integrity verified — authentication tag matched
+                {decrypted.integrity_verified
+                  ? "Integrity verified — authentication tag matched"
+                  : "Integrity check failed — authentication tag did not match"}
+              </span>
+            )}
+
+            {decrypted && decrypted.integrity_verified === null && (
+              <span className={[styles.integrity, styles.integrityNeutral].join(" ")}>
+                Integrity check not available — {formatAlgorithm(transfer.algorithm)} provides no authentication tag
               </span>
             )}
 

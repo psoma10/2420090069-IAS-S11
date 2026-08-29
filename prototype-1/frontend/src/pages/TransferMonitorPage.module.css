@@ -84,14 +84,26 @@
   color: var(--color-text-tertiary);
 }
 
-/* Integrity confirmation row shown after a successful AES decrypt. */
+/* Integrity row: three states, since AES reports true/false and the
+   classical ciphers report null (no authentication tag exists to check). */
 .integrity {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+}
+
+.integrityOk {
   color: var(--color-success);
+}
+
+.integrityFailed {
+  color: var(--color-danger);
+}
+
+.integrityNeutral {
+  color: var(--color-text-tertiary);
 }
 
 .integrityIcon {

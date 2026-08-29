@@ -37,17 +37,23 @@ export function toDateTimeAttr(iso: string): string {
   return Number.isNaN(date.getTime()) ? iso : date.toISOString();
 }
 
+// PRD FR-08's Recent Transfers mock spells this "AES-256", and that's the
+// more informative label (it's the recommended key size per FR-05) — used
+// everywhere rather than the plain "AES" some screens had drifted to.
 const ALGORITHM_LABELS: Record<AlgorithmId, string> = {
   caesar: "Caesar",
   playfair: "Playfair",
   sdes: "SDES",
-  aes: "AES",
+  aes: "AES-256",
 };
 
-export function formatAlgorithm(id: AlgorithmId | null): string {
+export function formatAlgorithm(id: AlgorithmId | string | null): string {
   if (!id) return "—";
-  return ALGORITHM_LABELS[id] ?? id.toUpperCase();
+  return ALGORITHM_LABELS[id as AlgorithmId] ?? String(id).toUpperCase();
 }
+
+/** @deprecated Alias of {@link formatAlgorithm} — kept while call sites migrate. */
+export const algorithmLabel = formatAlgorithm;
 
 const DIRECTION_LABELS: Record<Direction, string> = {
   CLIENT_TO_SERVER: "Client → Server",

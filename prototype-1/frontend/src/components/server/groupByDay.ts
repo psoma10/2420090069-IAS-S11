@@ -11,12 +11,12 @@ export interface DayGroup {
 export function groupByDay(items: ActivityItem[]): DayGroup[] {
   const groups: DayGroup[] = [];
   for (const item of items) {
-    const key = dayKey(item.created_at);
+    const key = dayKey(item.at);
     const last = groups[groups.length - 1];
     if (last && last.key === key) {
       last.items.push(item);
     } else {
-      groups.push({ key, label: formatDayLabel(item.created_at), items: [item] });
+      groups.push({ key, label: formatDayLabel(item.at), items: [item] });
     }
   }
   return groups;

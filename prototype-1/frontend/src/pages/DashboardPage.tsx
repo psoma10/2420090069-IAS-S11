@@ -59,8 +59,8 @@ export function DashboardPage() {
     );
   }
 
-  const isOnline = data.server_status === "ONLINE";
-  const failedTransfers = Math.max(data.transfers_total - data.successful_transfers, 0);
+  const isOnline = data.server_status === "online";
+  const failedTransfers = data.failed_transfers;
 
   return (
     <div className={styles.page}>
@@ -100,21 +100,21 @@ export function DashboardPage() {
         <dl className={styles.statGrid}>
           <StatCard
             label="Documents"
-            value={data.documents_total}
+            value={data.documents}
             hint="Uploaded to your vault"
             icon={<FileTextIcon />}
             accent="accent"
           />
           <StatCard
             label="Transfers"
-            value={data.transfers_total}
+            value={data.transfers}
             hint={failedTransfers > 0 ? `${failedTransfers} did not complete` : "All accounted for"}
             icon={<TransferIcon />}
             accent="info"
           />
           <StatCard
             label="Algorithms"
-            value={data.algorithms_available}
+            value={data.algorithms}
             hint="Caesar, Playfair, SDES, AES"
             icon={<KeyIcon />}
             accent="warning"
@@ -122,7 +122,7 @@ export function DashboardPage() {
           <StatCard
             label="Success Rate"
             value={formatPercent(data.success_rate)}
-            hint={`${data.successful_transfers} of ${data.transfers_total} succeeded`}
+            hint={`${data.successful_transfers} of ${data.transfers} succeeded`}
             icon={<ShieldCheckIcon />}
             accent="success"
           />

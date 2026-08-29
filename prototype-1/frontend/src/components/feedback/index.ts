@@ -1,9 +1,12 @@
 /**
- * Shared feedback surface for CyberVault: errors, empty states, loading
- * placeholders, toasts, and offline detection.
+ * Shared feedback surface for CyberVault: errors, toasts, and offline
+ * detection. (Empty/loading states live per-domain — see
+ * components/data/EmptyState and components/server/PageState — since each
+ * screen's empty copy and skeleton shape differ enough that one shared
+ * component wasn't earning its abstraction.)
  *
- * Import from this barrel so pages have one import line rather than six:
- *   import { ErrorBanner, EmptyState, SkeletonTable, useToast } from "../components/feedback";
+ * Import from this barrel so pages have one import line rather than several:
+ *   import { ErrorBanner, useToast } from "../components/feedback";
  *
  * Providers are mounted once in src/main.tsx (ToastProvider,
  * ConnectivityProvider) and OfflineBanner is mounted in AppShell — pages only
@@ -11,8 +14,6 @@
  */
 
 export { ErrorBanner, type BannerTone } from "./ErrorBanner";
-export { EmptyState } from "./EmptyState";
-export { Skeleton, SkeletonText, SkeletonCard, SkeletonTable } from "./Skeleton";
 export { ToastProvider } from "./ToastProvider";
 export { useToast, type Toast, type ToastOptions, type ToastTone } from "./toastContext";
 export { ConnectivityProvider } from "./ConnectivityProvider";

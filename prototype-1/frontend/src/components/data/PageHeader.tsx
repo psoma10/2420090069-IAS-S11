@@ -14,7 +14,7 @@ export function PageHeader({ eyebrow, title, subtitle, actions }: PageHeaderProp
     <header className={styles.header}>
       <div className={styles.headings}>
         {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
-        <h1 className={styles.title}>{title}</h1>
+        <h2 className={styles.title}>{title}</h2>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
       </div>
       {actions && <div className={styles.actions}>{actions}</div>}

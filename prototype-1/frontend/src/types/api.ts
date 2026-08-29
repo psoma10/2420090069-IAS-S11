@@ -133,26 +133,89 @@ export interface DecryptPreview {
   decryption_time_ms: number;
 }
 
+// API_CONTRACT.md §3.6 — the backend sends lowercase status and includes
+// failed_transfers/recent_transfers; earlier drafts of this type guessed
+// uppercase and omitted both fields.
 export interface ServerStatus {
-  status: "ONLINE" | "OFFLINE";
+  status: "online" | "offline";
   connected_clients: number;
   documents_received: number;
   documents_sent: number;
   successful_transfers: number;
+  failed_transfers: number;
   uptime_seconds: number;
+  recent_transfers: TransferSummary[];
 }
 
-export interface ActivityItem {
+// API_CONTRACT.md §3.9 — a share link is the owner-facing record of a public
+// URL. `token` is the visitor's only credential, so it is never rendered
+// anywhere except inside the copyable link itself.
+export interface ShareLink {
   id: number;
-  message: string;
+  document_id: number;
+  /** Null on the DELETE response, which returns the share without its document join. */
+  filename: string | null;
+  token: string;
+  /** Server-built path, e.g. "/share/<token>". Combine with location.origin for the full URL. */
+  share_path: string;
+  label: string | null;
+  revoked: boolean;
+  expired: boolean;
+  /** Server's verdict: !revoked && !expired. Trust this over recomputing client-side. */
+  active: boolean;
+  expires_at: string | null;
+  view_count: number;
+  last_viewed_at: string | null;
   created_at: string;
 }
 
+export interface ShareLinkList {
+  shares: ShareLink[];
+  total: number;
+}
+
+// API_CONTRACT.md §3.9 — the public payload is deliberately narrow: no
+// account details, no ciphertext, no keys, no route to other documents.
+export interface SharedDocument {
+  filename: string;
+  size: number;
+  content: string;
+  algorithm: AlgorithmId | null;
+  shared_by: string;
+  shared_at: string;
+  expires_at: string | null;
+  label: string | null;
+}
+
+export type ActivityAction =
+  | "USER_REGISTERED"
+  | "USER_LOGIN"
+  | "USER_LOGOUT"
+  | "DOCUMENT_UPLOADED"
+  | "DOCUMENT_ENCRYPTED"
+  | "TRANSFER_INITIATED"
+  | "TRANSFER_RECEIVED"
+  | "TRANSFER_COMPLETED"
+  | "TRANSFER_FAILED";
+
+// API_CONTRACT.md §3.7 — the wire shape is {id, action, message, at}, not
+// the {message, created_at} some pages were built against.
+export interface ActivityItem {
+  id: number;
+  action: ActivityAction;
+  message: string;
+  at: string;
+}
+
+// API_CONTRACT.md §3.6 — field names are documents/transfers/algorithms,
+// not the *_total/_available suffixes this type originally guessed.
 export interface DashboardData {
-  documents_total: number;
-  transfers_total: number;
-  algorithms_available: number;
+  documents: number;
+  transfers: number;
+  encrypted_documents: number;
+  algorithms: number;
   successful_transfers: number;
+  failed_transfers: number;
   success_rate: number;
   server_status: ServerStatus["status"];
   recent_transfers: TransferSummary[];

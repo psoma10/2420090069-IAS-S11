@@ -1,6 +1,22 @@
-import type { ApiErrorCode, ApiFailure, ApiSuccess } from "../types/api";
+import type {
+  ApiErrorCode,
+  ApiFailure,
+  ApiSuccess,
+  DashboardData,
+  SharedDocument,
+  ShareLink,
+  ShareLinkList,
+} from "../types/api";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5000";
+// Must match the host the page itself is served from — the session cookie
+// is host-scoped, so "localhost" and "127.0.0.1" are different cookie jars
+// to the browser even though they're the same machine (and on macOS,
+// localhost:5000 is often claimed by AirPlay Receiver, not this backend).
+// Defaulting to location.hostname keeps this correct regardless of which
+// host dev/CI actually serves the frontend from.
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ??
+  `http://${typeof window !== "undefined" ? window.location.hostname : "127.0.0.1"}:5000`;
 
 export class ApiError extends Error {
   code: ApiErrorCode;
@@ -102,8 +118,36 @@ export const api = {
     decrypt: (id: number | string, key?: string) =>
       apiRequest(`/transfers/${id}/decrypt`, { method: "POST", body: key ? { key } : {} }),
   },
+  shares: {
+    create: (documentId: number, body?: { label?: string; expires_in_days?: number }) =>
+      apiRequest<ShareLink>(`/documents/${documentId}/shares`, { method: "POST", body: body ?? {} }),
+    listForDocument: (documentId: number) =>
+      apiRequest<ShareLinkList>(`/documents/${documentId}/shares`),
+    listAll: (query?: { limit?: number; offset?: number }) => apiRequest<ShareLinkList>("/shares", { query }),
+    revoke: (shareId: number) => apiRequest<ShareLink>(`/shares/${shareId}`, { method: "DELETE" }),
+    // PUBLIC — no session required (API_CONTRACT §3.9). It still goes through
+    // apiRequest, which only ever adds `credentials: "include"` and a JSON
+    // content-type; there are no auth-only headers to strip. A signed-out
+    // browser simply has no cookie to send, and the backend does not look for
+    // one on this route.
+    getPublic: (token: string) => apiRequest<SharedDocument>(`/share/${encodeURIComponent(token)}`),
+  },
   dashboard: {
-    get: () => apiRequest("/dashboard"),
+    // The dashboard endpoint's embedded recent_activity items use
+    // `created_at`, while GET /api/activity's items use `at` for the same
+    // field — a genuine inconsistency in the live backend. Normalized here,
+    // at the one call site, so the ActivityItem type stays a single honest
+    // shape (`at`) everywhere else in the app.
+    get: async (): Promise<DashboardData> => {
+      const data = await apiRequest<DashboardData>("/dashboard");
+      return {
+        ...data,
+        recent_activity: (data.recent_activity ?? []).map((item) => ({
+          ...item,
+          at: item.at ?? (item as unknown as { created_at?: string }).created_at ?? "",
+        })),
+      };
+    },
   },
   server: {
     status: () => apiRequest("/server/status"),

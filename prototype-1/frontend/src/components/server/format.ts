@@ -1,14 +1,10 @@
 // Presentation helpers shared by the Server Monitor and Activity screens.
 // Per API_CONTRACT.md section 6, byte/duration formatting is the frontend's job.
-
-/** 8704 -> "8.5 KB". Binary units, one decimal above the KB threshold. */
-export function formatBytes(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes < 0) return "—";
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(1)} KB`;
-  return `${(kb / 1024).toFixed(2)} MB`;
-}
+//
+// formatBytes and algorithmLabel live in src/lib/format.ts — the canonical
+// copy every screen shares — and are re-exported here so existing imports
+// from this module keep working.
+export { formatBytes, formatAlgorithm as algorithmLabel } from "../../lib/format";
 
 /** 5423 -> "1h 30m". Ops dashboards read uptime at a glance, not to the second. */
 export function formatUptime(seconds: number): string {
@@ -101,16 +97,4 @@ function parseIso(iso: string): Date | null {
   if (!iso) return null;
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? null : date;
-}
-
-const ALGORITHM_LABELS: Record<string, string> = {
-  caesar: "Caesar",
-  playfair: "Playfair",
-  sdes: "SDES",
-  aes: "AES-256",
-};
-
-/** Lowercase algorithm ids -> the display labels used across the product. */
-export function algorithmLabel(id: string): string {
-  return ALGORITHM_LABELS[id] ?? id.toUpperCase();
 }

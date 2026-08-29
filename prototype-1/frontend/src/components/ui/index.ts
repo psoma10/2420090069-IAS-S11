@@ -16,7 +16,6 @@ export { Input } from "./Input";
 export { Select, type SelectOption } from "./Select";
 export { Textarea } from "./Textarea";
 export { StatTile } from "./StatTile";
-export { Skeleton } from "./Skeleton";
 export { Divider } from "./Divider";
 export { Alert } from "./Alert";
 export { Modal } from "./Modal";

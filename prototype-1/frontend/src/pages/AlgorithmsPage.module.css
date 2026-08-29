@@ -116,12 +116,12 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  background: var(--color-accent);
 }
 
 .recommended:hover {
   border-color: var(--color-accent);
-  box-shadow: 0 12px 32px rgba(34, 211, 238, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .cardHead {

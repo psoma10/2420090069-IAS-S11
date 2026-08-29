@@ -6,6 +6,7 @@ import { Card } from "../components/ui/Card";
 import { EncryptionStats, formatBytes } from "../components/encryption/EncryptionStats";
 import { PlaintextCiphertextPanel } from "../components/encryption/PlaintextCiphertextPanel";
 import { ApiError, api } from "../lib/api";
+import { useFlow } from "../context/FlowContext";
 import type { EncryptionPreview, TransferDetail } from "../types/api";
 import styles from "./EncryptionPreviewPage.module.css";
 
@@ -97,6 +98,7 @@ function isOfflineError(error: unknown): boolean {
 export function EncryptionPreviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { reachStep, updateFlow } = useFlow();
   const nav = (location.state ?? {}) as PreviewNavState;
 
   const [preview, setPreview] = useState<EncryptionPreview | null>(null);
@@ -124,6 +126,7 @@ export function EncryptionPreviewPage() {
     try {
       const data = (await api.encryption.preview({ algorithm, key, text })) as EncryptionPreview;
       setPreview(data);
+      reachStep("encrypt");
     } catch (err) {
       if (isOfflineError(err)) {
         setPreview(SAMPLE_PREVIEW);
@@ -160,6 +163,7 @@ export function EncryptionPreviewPage() {
         key,
         direction,
       })) as TransferDetail;
+      updateFlow({ transferId: transfer.id, transferDirection: transfer.direction, furthestStep: "send" });
       navigate(`/transfers/${transfer.id}`, { state: { transfer, key } });
     } catch (err) {
       setSendError(err instanceof ApiError ? err.message : "The transfer could not be started.");
@@ -173,7 +177,7 @@ export function EncryptionPreviewPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerText}>
-          <h1 className={styles.title}>Encryption Preview</h1>
+          <h2 className={styles.title}>Encryption Preview</h2>
           <p className={styles.subtitle}>
             Review the transformation before transmission. Only the ciphertext on the right leaves this
             machine — the plaintext never touches the network.

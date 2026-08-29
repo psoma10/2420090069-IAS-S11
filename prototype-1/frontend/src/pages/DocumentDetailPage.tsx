@@ -203,7 +203,7 @@ export function DocumentDetailPage() {
             <span className={styles.eyebrow}>
               {doc.direction === "CLIENT_TO_SERVER" ? "Document uploaded" : "Document received"}
             </span>
-            <h1 className={styles.filename}>{doc.filename}</h1>
+            <h2 className={styles.filename}>{doc.filename}</h2>
           </div>
         </div>
         <div className={styles.actions}>

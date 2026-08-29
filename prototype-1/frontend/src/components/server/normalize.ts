@@ -1,13 +1,7 @@
-// Defensive normalisation for the two monitoring endpoints.
-//
-// API_CONTRACT.md and src/types/api.ts disagree on wire shape today:
-//   - status:   contract says "online" (lowercase), types say "ONLINE"
-//   - activity: contract says { action, at }, types say { message, created_at }
-//   - contract additionally returns failed_transfers + recent_transfers,
-//     neither of which exists on the ServerStatus type.
-// Rather than pick a winner and render blanks when the backend disagrees,
-// these readers accept either shape and coerce to the typed form. Delete the
-// fallbacks once the contract and the types are reconciled.
+// Defensive normalisation for the two monitoring endpoints. src/types/api.ts
+// now matches API_CONTRACT.md's actual wire shape, so this only guards
+// against a malformed/partial response (missing fields, wrong types) —
+// not against a documented shape mismatch.
 import type { ActivityItem, ServerStatus, TransferSummary } from "../../types/api";
 
 type Loose = Record<string, unknown>;
@@ -24,18 +18,14 @@ function asText(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
-/** Server status, tolerant of casing and of the extra contract-only fields. */
-export interface NormalizedServerStatus extends ServerStatus {
-  failed_transfers: number;
-  recent_transfers: TransferSummary[];
-}
+export type NormalizedServerStatus = ServerStatus;
 
 export function normalizeServerStatus(raw: unknown): NormalizedServerStatus {
   const record = asRecord(raw);
-  // Fail safe: only an explicit "online" is reported as ONLINE. A missing or
+  // Fail safe: only an explicit "online" is reported as online. A missing or
   // unrecognised value means we cannot confirm the service is up, and a
-  // monitor that claims ONLINE when it does not know is worse than useless.
-  const status = asText(record.status).toUpperCase() === "ONLINE" ? "ONLINE" : "OFFLINE";
+  // monitor that claims online when it does not know is worse than useless.
+  const status = asText(record.status).toLowerCase() === "online" ? "online" : "offline";
 
   return {
     status,
@@ -43,26 +33,39 @@ export function normalizeServerStatus(raw: unknown): NormalizedServerStatus {
     documents_received: asCount(record.documents_received),
     documents_sent: asCount(record.documents_sent),
     successful_transfers: asCount(record.successful_transfers),
-    uptime_seconds: asCount(record.uptime_seconds),
     failed_transfers: asCount(record.failed_transfers),
+    uptime_seconds: asCount(record.uptime_seconds),
     recent_transfers: Array.isArray(record.recent_transfers)
       ? (record.recent_transfers as TransferSummary[])
       : [],
   };
 }
 
-/** Activity row, accepting either `{ message, created_at }` or `{ action, at }`. */
+const KNOWN_ACTIONS = new Set<string>([
+  "USER_REGISTERED",
+  "USER_LOGIN",
+  "USER_LOGOUT",
+  "DOCUMENT_UPLOADED",
+  "DOCUMENT_ENCRYPTED",
+  "TRANSFER_INITIATED",
+  "TRANSFER_RECEIVED",
+  "TRANSFER_COMPLETED",
+  "TRANSFER_FAILED",
+]);
+
+/** Activity row per API_CONTRACT.md §3.7: `{ id, action, message, at }`. */
 export function normalizeActivity(raw: unknown): ActivityItem[] {
   const record = asRecord(raw);
   const list = Array.isArray(record.activity) ? record.activity : Array.isArray(raw) ? raw : [];
 
   return list.map((entry, index) => {
     const item = asRecord(entry);
-    const message = asText(item.message) || humanizeAction(asText(item.action)) || "Activity recorded";
+    const action = asText(item.action);
     return {
       id: typeof item.id === "number" ? item.id : index,
-      message,
-      created_at: asText(item.created_at) || asText(item.at),
+      action: (KNOWN_ACTIONS.has(action) ? action : "TRANSFER_INITIATED") as ActivityItem["action"],
+      message: asText(item.message) || humanizeAction(action) || "Activity recorded",
+      at: asText(item.at),
     };
   });
 }

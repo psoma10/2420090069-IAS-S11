@@ -15,7 +15,6 @@ const POLL_INTERVAL_MS = 10_000;
 
 const FALLBACK: NormalizedServerStatus = {
   ...MOCK_SERVER_STATUS,
-  failed_transfers: 0,
   recent_transfers: MOCK_TRANSFERS,
 };
 
@@ -50,7 +49,9 @@ export function ServerMonitorPage() {
   }
 
   const loading = state === "loading";
-  const status = data?.status ?? "OFFLINE";
+  // Wire status is lowercase (API_CONTRACT.md §3.6); StatusHero displays
+  // the uppercase form.
+  const status = data?.status === "online" ? "ONLINE" : "OFFLINE";
   const transfers = data?.recent_transfers ?? [];
 
   return (

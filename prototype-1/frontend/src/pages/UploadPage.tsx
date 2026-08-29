@@ -9,6 +9,7 @@ import { Button } from "../components/ui/Button";
 import { api, ApiError } from "../lib/api";
 import { describeError, isOfflineCode } from "../lib/errorMessages";
 import { MOCK_ALGORITHMS } from "../lib/mockData";
+import { useFlow } from "../context/FlowContext";
 import type { Algorithm, AlgorithmId, Direction, DocumentSummary } from "../types/api";
 import styles from "./UploadPage.module.css";
 
@@ -36,6 +37,7 @@ interface SubmitError {
  */
 export function UploadPage() {
   const navigate = useNavigate();
+  const { updateFlow } = useFlow();
 
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
   const [algorithmsLoading, setAlgorithmsLoading] = useState(true);
@@ -211,6 +213,14 @@ export function UploadPage() {
       const document = (await api.documents.upload(form)) as DocumentSummary;
       setUploaded(document);
       setPhase("success");
+      updateFlow({
+        documentId: document.id,
+        documentName: document.filename,
+        documentSize: document.size,
+        algorithm: algorithm.id,
+        keySize: algorithm.key_sizes.length ? keySize : null,
+        furthestStep: "configure",
+      });
     } catch (err) {
       setPhase("ready");
       if (err instanceof ApiError && isOfflineCode(err.code)) {
@@ -242,7 +252,8 @@ export function UploadPage() {
         algorithm: algorithm?.id,
         keySize: algorithm?.key_sizes.length ? keySize : undefined,
         key,
-        plaintext,
+        text: plaintext,
+        direction: DIRECTION,
       },
     });
   }
@@ -267,7 +278,7 @@ export function UploadPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>Step 1 of the secure transfer</p>
-        <h1 className={styles.title}>Secure document upload</h1>
+        <h2 className={styles.title}>Secure document upload</h2>
         <p className={styles.subtitle}>
           Choose a plain-text document, pick a cipher, and supply the key it will be encrypted with. Nothing is
           transmitted until you send it from the encryption preview.
@@ -285,9 +296,9 @@ export function UploadPage() {
               >
                 {fileReady ? "✓" : "1"}
               </span>
-              <h2 className={styles.stepTitle} id="step-file">
+              <h3 className={styles.stepTitle} id="step-file">
                 Select document
-              </h2>
+              </h3>
               <span className={styles.stepMeta}>.TXT &middot; MAX {formatSize(limit)}</span>
             </div>
 
@@ -346,9 +357,9 @@ export function UploadPage() {
               >
                 {algorithmId && stepTwoActive ? "✓" : "2"}
               </span>
-              <h2 className={styles.stepTitle} id="step-algorithm">
+              <h3 className={styles.stepTitle} id="step-algorithm">
                 Choose algorithm
-              </h2>
+              </h3>
             </div>
 
             <AlgorithmSelector
@@ -375,9 +386,9 @@ export function UploadPage() {
               >
                 {keyComplete && stepTwoActive ? "✓" : "3"}
               </span>
-              <h2 className={styles.stepTitle} id="step-key">
+              <h3 className={styles.stepTitle} id="step-key">
                 Provide encryption key
-              </h2>
+              </h3>
             </div>
 
             <KeyInput
@@ -415,7 +426,7 @@ export function UploadPage() {
               <p className={styles.successBadge}>
                 <span aria-hidden="true">✓</span> Upload complete
               </p>
-              <h2 className={styles.successTitle}>{uploaded.filename} is ready for encryption</h2>
+              <h3 className={styles.successTitle}>{uploaded.filename} is ready for encryption</h3>
               <div className={styles.successFacts}>
                 <span>{formatSize(uploaded.size)}</span>
                 <span>{algorithm?.name.toUpperCase()}</span>

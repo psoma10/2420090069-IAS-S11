@@ -6,19 +6,25 @@ import type { ActivityItem } from "../../types/api";
 
 type Tone = "encrypt" | "transfer" | "receive" | "decrypt" | "fail" | "default";
 
+const TONE_BY_ACTION: Record<ActivityItem["action"], Tone> = {
+  TRANSFER_FAILED: "fail",
+  TRANSFER_COMPLETED: "decrypt",
+  TRANSFER_RECEIVED: "receive",
+  DOCUMENT_ENCRYPTED: "encrypt",
+  TRANSFER_INITIATED: "transfer",
+  DOCUMENT_UPLOADED: "transfer",
+  USER_REGISTERED: "default",
+  USER_LOGIN: "default",
+  USER_LOGOUT: "default",
+};
+
 /**
- * Activity messages are free-form strings from the backend (§3.8), so tone is
- * derived from keywords purely for the timeline dot. The message text itself
- * always carries the meaning — colour is never the only signal.
+ * Timeline dot colour, keyed off the contract's `action` enum (§3.7). The
+ * message text itself always carries the meaning — colour is never the only
+ * signal.
  */
-function toneFor(message: string): Tone {
-  const text = message.toLowerCase();
-  if (text.includes("fail") || text.includes("error")) return "fail";
-  if (text.includes("decrypt")) return "decrypt";
-  if (text.includes("receiv")) return "receive";
-  if (text.includes("encrypt")) return "encrypt";
-  if (text.includes("transfer") || text.includes("sent") || text.includes("upload")) return "transfer";
-  return "default";
+function toneFor(action: ActivityItem["action"]): Tone {
+  return TONE_BY_ACTION[action] ?? "default";
 }
 
 interface RecentActivityListProps {
@@ -40,10 +46,10 @@ export function RecentActivityList({ items }: RecentActivityListProps) {
     <ol className={styles.feed}>
       {items.map((item) => (
         <li key={item.id} className={styles.item}>
-          <span className={[styles.dot, styles[toneFor(item.message)]].join(" ")} aria-hidden="true" />
+          <span className={[styles.dot, styles[toneFor(item.action)]].join(" ")} aria-hidden="true" />
           <p className={styles.message}>{item.message}</p>
-          <time className={styles.time} dateTime={item.created_at} title={absoluteTime(item.created_at)}>
-            {relativeTime(item.created_at)}
+          <time className={styles.time} dateTime={item.at} title={absoluteTime(item.at)}>
+            {relativeTime(item.at)}
           </time>
         </li>
       ))}

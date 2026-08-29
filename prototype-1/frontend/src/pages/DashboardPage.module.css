@@ -76,7 +76,7 @@
 }
 
 .cta {
-  box-shadow: 0 6px 20px rgba(34, 211, 238, 0.22);
+  box-shadow: var(--shadow-sm);
   transition:
     transform var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-base) var(--ease-standard),
@@ -85,7 +85,7 @@
 
 .ctaLink:hover .cta {
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(34, 211, 238, 0.32);
+  box-shadow: var(--shadow-md);
 }
 
 .ctaLink:active .cta {

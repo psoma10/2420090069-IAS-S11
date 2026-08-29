@@ -15,7 +15,7 @@ const POLL_INTERVAL_MS = 15_000;
 
 /** Newest-first, per API_CONTRACT.md section 6. Sorted defensively anyway. */
 const FALLBACK: ActivityItem[] = [...MOCK_DASHBOARD.recent_activity].sort((a, b) =>
-  b.created_at.localeCompare(a.created_at),
+  b.at.localeCompare(a.at),
 );
 
 /**

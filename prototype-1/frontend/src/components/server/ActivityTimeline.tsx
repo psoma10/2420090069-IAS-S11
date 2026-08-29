@@ -4,18 +4,25 @@ import { groupByDay } from "./groupByDay";
 import type { ActivityItem } from "../../types/api";
 import styles from "./ActivityTimeline.module.css";
 
+const TONE_BY_ACTION: Record<ActivityItem["action"], string> = {
+  TRANSFER_FAILED: styles.danger,
+  TRANSFER_COMPLETED: styles.success,
+  TRANSFER_RECEIVED: styles.success,
+  DOCUMENT_ENCRYPTED: styles.accent,
+  TRANSFER_INITIATED: styles.accent,
+  DOCUMENT_UPLOADED: styles.accent,
+  USER_REGISTERED: styles.neutral,
+  USER_LOGIN: styles.neutral,
+  USER_LOGOUT: styles.neutral,
+};
+
 /**
- * Classifies a log line for its rail marker colour. The contract says `action`
- * is the machine field, but `message` is the only field guaranteed to reach us
- * (see normalize.ts), so this reads the human string instead. Purely
- * decorative — no meaning is conveyed by the marker alone.
+ * Rail marker colour, keyed off the contract's `action` enum (§3.7). Purely
+ * decorative — no meaning is conveyed by the marker alone, `message` always
+ * carries it.
  */
-function toneFor(message: string): string {
-  const text = message.toLowerCase();
-  if (text.includes("fail") || text.includes("error") || text.includes("denied")) return styles.danger;
-  if (text.includes("complete") || text.includes("decrypted") || text.includes("success")) return styles.success;
-  if (text.includes("encrypt") || text.includes("initiated") || text.includes("sent")) return styles.accent;
-  return styles.neutral;
+function toneFor(action: ActivityItem["action"]): string {
+  return TONE_BY_ACTION[action] ?? styles.neutral;
 }
 
 /**
@@ -50,12 +57,12 @@ export function ActivityTimeline({ items, loading }: { items: ActivityItem[]; lo
               <li key={item.id} className={styles.entry}>
                 <time
                   className={styles.time}
-                  dateTime={item.created_at}
-                  title={formatAbsolute(item.created_at)}
+                  dateTime={item.at}
+                  title={formatAbsolute(item.at)}
                 >
-                  {formatClock(item.created_at)}
+                  {formatClock(item.at)}
                 </time>
-                <span className={[styles.marker, toneFor(item.message)].join(" ")} aria-hidden="true" />
+                <span className={[styles.marker, toneFor(item.action)].join(" ")} aria-hidden="true" />
                 <span className={styles.message}>{item.message}</span>
               </li>
             ))}

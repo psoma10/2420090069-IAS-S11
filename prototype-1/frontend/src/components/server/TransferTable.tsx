@@ -2,27 +2,9 @@ import { Link } from "react-router-dom";
 import { Badge } from "../ui/Badge";
 import { Skeleton } from "./PageState";
 import { algorithmLabel, formatBytes, formatClockSeconds } from "./format";
-import type { TransferStatus, TransferSummary } from "../../types/api";
+import { formatDirection, transferStatusTone } from "../../lib/format";
+import type { TransferSummary } from "../../types/api";
 import styles from "./TransferTable.module.css";
-
-/** Transfer status -> Badge tone. Keeps status colour identical everywhere. */
-function statusTone(status: TransferStatus): "success" | "warning" | "danger" | "neutral" {
-  switch (status) {
-    case "COMPLETED":
-      return "success";
-    case "PENDING":
-      return "warning";
-    case "FAILED":
-      return "danger";
-    default:
-      return "neutral";
-  }
-}
-
-const DIRECTION_LABEL: Record<string, string> = {
-  CLIENT_TO_SERVER: "Client → Server",
-  SERVER_TO_CLIENT: "Server → Client",
-};
 
 /**
  * Recent transfers, per PRD FR-08.
@@ -86,14 +68,14 @@ export function TransferTable({
               </td>
               <td data-label="Direction">
                 <span className={styles.direction}>
-                  {DIRECTION_LABEL[transfer.direction] ?? transfer.direction}
+                  {formatDirection(transfer.direction)}
                 </span>
               </td>
               <td data-label="Time" className={styles.numeric}>
                 <time dateTime={transfer.timestamp}>{formatClockSeconds(transfer.timestamp)}</time>
               </td>
               <td data-label="Status">
-                <Badge tone={statusTone(transfer.status)} dot>
+                <Badge tone={transferStatusTone(transfer.status)} dot>
                   {transfer.status}
                 </Badge>
               </td>
