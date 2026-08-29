@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { RequireAuth } from "./components/layout/RequireAuth";
 import { FlowOutlet } from "./components/flow/FlowOutlet";
+import { useAuth } from "./context/AuthContext";
+import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -16,10 +18,28 @@ import { ServerMonitorPage } from "./pages/ServerMonitorPage";
 import { ActivityPage } from "./pages/ActivityPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
+/**
+ * "/" is the only route whose content depends on session state:
+ * signed-out visitors get the public landing page, an existing session goes
+ * straight to the dashboard. Deliberately NOT wrapped in RequireAuth — the
+ * landing page has to render for anonymous visitors.
+ *
+ * While `status` is "loading" we render nothing. The session check is a
+ * single fast /auth/me call, and a blank frame is better than showing the
+ * marketing page to a logged-in user for one frame before redirecting.
+ */
+function RootRoute() {
+  const { status } = useAuth();
+
+  if (status === "loading") return null;
+  if (status === "authenticated") return <Navigate to="/dashboard" replace />;
+  return <LandingPage />;
+}
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
