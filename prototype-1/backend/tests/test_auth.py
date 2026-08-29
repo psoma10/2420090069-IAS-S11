@@ -534,6 +534,14 @@ def probe_app() -> Flask:
         require_json(request)
         return {"reached": True}, 200
 
+    @flask_app.post("/probe/json-optional")
+    def _json_optional():
+        # `allow_empty=True` is the mode where the `is_json` content-type check
+        # is the *only* thing standing between a cross-origin HTML form and
+        # this handler: with no body at all the function returns {}, so the
+        # `get_json() is None` gate below it cannot reject a form post.
+        return {"body": require_json(request, allow_empty=True)}, 200
+
     if not pool_is_open():
         init_pool(Config.DATABASE_URL)
 
@@ -596,6 +604,33 @@ def test_require_json_rejects_a_json_array_body(probe_app):
     assert response.get_json()["error"]["code"] == "VALIDATION_ERROR"
 
 
+def test_me_rejects_a_session_pointing_at_a_missing_user(client):
+    """/me's second gate: a valid cookie whose user row no longer exists.
+
+    @login_required only checks that the session carries an id, so a cookie
+    that outlived its account would sail past it. The route's
+    `current_user() is None` guard is what turns that into a 401 instead of a
+    500 on `user["id"]`. Both layers are deliberate; this pins the inner one.
+    """
+    with client.session_transaction() as sess:
+        # An id far beyond any row this database will hold.
+        sess["user_id"] = 2_000_000_000
+
+    response = get(client, "/api/auth/me")
+    assert response.status_code == 401
+    assert body(response)["error"]["code"] == "UNAUTHORIZED"
+
+
+def test_me_ignores_a_non_integer_session_value(client):
+    """A tampered or corrupt session value must read as unauthenticated."""
+    with client.session_transaction() as sess:
+        sess["user_id"] = "not-an-integer"
+
+    response = get(client, "/api/auth/me")
+    assert response.status_code == 401
+    assert body(response)["error"]["code"] == "UNAUTHORIZED"
+
+
 def test_validate_name_rejects_a_blank_string(probe_app):
     """`validate_name` must reject blank input on its own.
 
@@ -635,20 +670,37 @@ def test_validate_password_enforces_minimum_length_directly(probe_app):
 
 
 def test_require_json_is_json_check_is_load_bearing(probe_app):
-    """The `is_json` guard must reject even when a body would parse.
+    """The `is_json` content-type guard must reject on its own.
 
-    `require_json` has a second gate (`get_json` returning None), which masks
-    the first for most inputs. This drives a request whose body IS valid JSON
-    text under a form content type: only the `is_json` check can reject it.
+    On the default path `require_json` has a second gate — `get_json()`
+    returning None — that rejects a form body anyway, so a test there passes
+    with or without the content-type check and proves nothing. Under
+    `allow_empty=True` that second gate returns `{}` instead of raising, which
+    leaves `is_json` as the only defense. This is the request that pins it:
+    delete the check and the form post reaches the handler with a 200.
     """
     response = probe_app.test_client().post(
-        "/probe/json-only",
-        data=json.dumps({"a": 1}),
+        "/probe/json-optional",
+        data="email=ada@example.com&password=hunter2hunter2",
         content_type="application/x-www-form-urlencoded",
     )
     _record(response)
-    assert response.status_code == 400
+
+    assert response.status_code == 400, (
+        "a form-encoded body reached an allow_empty handler — the is_json "
+        "check is not rejecting on content type"
+    )
     assert response.get_json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_require_json_allow_empty_accepts_a_genuinely_absent_body(probe_app):
+    """The allow_empty escape hatch still works for a real empty JSON post."""
+    response = probe_app.test_client().post(
+        "/probe/json-optional", content_type="application/json"
+    )
+    _record(response)
+    assert response.status_code == 200
+    assert response.get_json()["body"] == {}
 
 
 # --------------------------------------------------------------------------

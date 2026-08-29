@@ -71,6 +71,7 @@ def logout():
 
 
 @auth_bp.get("/me")
+@login_required
 def me():
     """Return the authenticated user. ``401`` without a session."""
     user = current_user()
