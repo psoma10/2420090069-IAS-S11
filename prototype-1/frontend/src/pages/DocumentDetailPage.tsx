@@ -8,6 +8,7 @@ import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { CopyButton, EmptyState, OfflineBanner, OfflineIcon, VaultIcon } from "../components/data";
+import { ShareDocumentModal } from "../components/share/ShareDocumentModal";
 import { useListResource } from "../components/data/useListResource";
 import {
   directionTone,
@@ -136,6 +137,7 @@ export function DocumentDetailPage() {
 
   const doc = rows[0];
   const { transfer, loading: cipherLoading } = useDocumentCiphertext(documentId, validId && Boolean(doc));
+  const [shareOpen, setShareOpen] = useState(false);
 
   const contentStats = useMemo(() => {
     if (!doc?.content) return null;
@@ -215,8 +217,18 @@ export function DocumentDetailPage() {
           >
             <Button variant="secondary">Download</Button>
           </a>
+          <Button variant="primary" onClick={() => setShareOpen(true)}>
+            Share
+          </Button>
         </div>
       </div>
+
+      <ShareDocumentModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        documentId={doc.id}
+        filename={doc.filename}
+      />
 
       {offlineMessage && <OfflineBanner message={offlineMessage} />}
 

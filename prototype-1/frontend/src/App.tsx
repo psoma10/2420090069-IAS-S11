@@ -16,6 +16,8 @@ import { TransferMonitorPage } from "./pages/TransferMonitorPage";
 import { AlgorithmsPage } from "./pages/AlgorithmsPage";
 import { ServerMonitorPage } from "./pages/ServerMonitorPage";
 import { ActivityPage } from "./pages/ActivityPage";
+import { ShareLinksPage } from "./pages/ShareLinksPage";
+import { SharedDocumentPage } from "./pages/SharedDocumentPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 /**
@@ -43,6 +45,12 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* PUBLIC by design (API_CONTRACT §3.9). This route must stay OUTSIDE
+          RequireAuth — the whole point of a share link is that a recipient
+          with no account can open it. It also renders outside AppShell, so a
+          visitor sees no sidebar, nav or account chrome. */}
+      <Route path="/share/:token" element={<SharedDocumentPage />} />
+
       <Route element={<RequireAuth />}>
         <Route element={<AppShell />}>
           {/* FlowOutlet renders the "continue where you left off" banner
@@ -59,6 +67,7 @@ export default function App() {
             <Route path="/algorithms" element={<AlgorithmsPage />} />
             <Route path="/server" element={<ServerMonitorPage />} />
             <Route path="/activity" element={<ActivityPage />} />
+            <Route path="/shares" element={<ShareLinksPage />} />
           </Route>
         </Route>
       </Route>

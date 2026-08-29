@@ -11,7 +11,7 @@ export interface NavItem {
 
 /*
   Icons are inlined 16px stroke glyphs rather than an icon package: the shell
-  needs exactly seven of them, and inlining keeps the nav free of a runtime
+  needs only a handful of them, and inlining keeps the nav free of a runtime
   dependency. All are aria-hidden — the adjacent label is the accessible name.
 */
 const iconProps = {
@@ -59,6 +59,16 @@ export const NAV_ITEMS: NavItem[] = [
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
         <path d="M14 3v5h5" />
         <path d="M9 13h6M9 17h4" />
+      </svg>
+    ),
+  },
+  {
+    to: "/shares",
+    label: "Share Links",
+    icon: (
+      <svg {...iconProps}>
+        <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+        <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
       </svg>
     ),
   },

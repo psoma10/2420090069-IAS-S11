@@ -90,11 +90,21 @@
   color: var(--color-text-tertiary);
 }
 
+/* The filename is this page's visual title (semantically an <h2>; AppShell owns
+   the <h1>), so it takes the page-title step of the scale. Held one step down on
+   narrow screens because filenames are monospace and unbounded in length. */
 .filename {
   font-family: var(--font-mono);
   font-size: var(--text-xl);
   letter-spacing: -0.01em;
   overflow-wrap: anywhere;
+}
+
+@media (min-width: 641px) {
+  .filename {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.02em;
+  }
 }
 
 /* --- Meta strip --- */
