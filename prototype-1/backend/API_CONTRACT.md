@@ -198,6 +198,7 @@ side-by-side plaintext/ciphertext screen.
     "algorithm": "aes",
     "algorithm_label": "AES-256",
     "plaintext": "Hello CyberVault",
+    "original_text": "Hello CyberVault",
     "ciphertext": "k9Fh…",
     "plaintext_size": 16,
     "ciphertext_size": 60,
@@ -208,7 +209,9 @@ side-by-side plaintext/ciphertext screen.
 
 `algorithm_label` is the display string ("AES-256", "Caesar Cipher", …).
 For Playfair, `plaintext` echoes the **normalized** text actually encrypted,
-which may differ from what was sent — see `ARCHITECTURE.md` §3.
+while `original_text` is what the caller sent — showing both explains the
+transformation. For the lossless ciphers the two are identical. See
+`ARCHITECTURE.md` §3.
 
 Errors: `UNSUPPORTED_ALGORITHM` 400, `INVALID_KEY` 400, `VALIDATION_ERROR` 400,
 `ENCRYPTION_FAILED` 500.
@@ -489,6 +492,101 @@ Activity is scoped to the authenticated user.
 
 ---
 
+### 3.9 Share links
+
+A document is private until its owner creates a share. The link then carries a
+256-bit random token that is the visitor's only credential.
+
+#### `POST /api/documents/{id}/shares`
+
+Owner only. Body is optional:
+
+```json
+{ "label": "For the committee", "expires_in_days": 7 }
+```
+
+`expires_in_days` is 1–365, or omitted for a link that does not expire.
+
+`201`
+
+```json
+{
+  "success": true,
+  "message": "Share link created",
+  "data": {
+    "id": 12,
+    "document_id": 7,
+    "filename": "confidential.txt",
+    "token": "NOWEG38_zBvzLAvnQXeswAOC0c0cWLHHjd6P2TGnRg8",
+    "share_path": "/share/NOWEG38_zBvzLAvnQXeswAOC0c0cWLHHjd6P2TGnRg8",
+    "label": "For the committee",
+    "revoked": false,
+    "expired": false,
+    "active": true,
+    "expires_at": "2026-09-05T10:14:31Z",
+    "view_count": 0,
+    "last_viewed_at": null,
+    "created_at": "2026-08-29T10:14:31Z"
+  }
+}
+```
+
+Build the full URL client-side as `window.location.origin + share_path`.
+
+Errors: `DOCUMENT_NOT_FOUND` 404 (also for another user's document),
+`VALIDATION_ERROR` 400 (bad `expires_in_days`), `UNAUTHORIZED` 401.
+
+#### `GET /api/documents/{id}/shares`
+
+Owner only. `200` → `data.shares` array (shape above) plus `data.total`.
+
+#### `GET /api/shares`
+
+Every link belonging to the caller. Query: `limit`, `offset`.
+`200` → `data.shares` + `data.total`.
+
+#### `DELETE /api/shares/{share_id}`
+
+Withdraw a link. `200` → the share with `revoked: true`, `active: false`.
+Effective immediately — access is re-checked on every view, so there is no
+window in which a revoked link still works.
+
+Errors: `DOCUMENT_NOT_FOUND` 404 (including another user's share).
+
+#### `GET /api/share/{token}`
+
+**Public. No authentication.** The only unauthenticated endpoint that returns
+document content.
+
+`200`
+
+```json
+{
+  "success": true,
+  "message": "Shared document retrieved",
+  "data": {
+    "filename": "confidential.txt",
+    "size": 8704,
+    "content": "This is the original document.",
+    "algorithm": "aes",
+    "shared_by": "Ada Lovelace",
+    "shared_at": "2026-08-29T10:14:31Z",
+    "expires_at": null,
+    "label": "For the committee"
+  }
+}
+```
+
+The payload is deliberately narrow: no account details, no ciphertext, no keys,
+no route to the owner's other documents.
+
+A revoked link, an expired link and a token that never existed all return an
+identical `DOCUMENT_NOT_FOUND` 404, so a visitor cannot probe for links that
+used to work. Render one neutral "this link is not available" state for all
+three rather than distinguishing them.
+
+---
+
 ## 4. Error codes
 
 | Code | HTTP | Meaning |
@@ -532,6 +630,10 @@ Activity is scoped to the authenticated user.
 | Documents list | `GET /api/documents` |
 | Server monitor | `GET /api/server/status` |
 | Activity | `GET /api/activity` |
+| Share a document | `POST /api/documents/{id}/shares` |
+| Manage share links | `GET /api/shares`, `DELETE /api/shares/{id}` |
+| Public shared document | `GET /api/share/{token}` (no auth; route must render signed-out) |
+| Landing page (pre-login) | `GET /api/algorithms`, `GET /api/server/status` (both public) |
 
 ---
 
@@ -569,3 +671,5 @@ Neither edits the other's tree. This document is the interface between them.
 | Date | Change |
 |---|---|
 | 2026-08-29 | Initial contract, Phase 1. |
+| 2026-08-29 | Added §3.9 share links (`/api/documents/{id}/shares`, `/api/shares`, public `/api/share/{token}`). Additive. |
+| 2026-08-29 | `POST /api/encryption/preview` also returns `original_text`. Additive; existing fields unchanged. |

@@ -181,8 +181,28 @@ app = create_app() if os.environ.get("CYBERVAULT_EAGER_APP") else None
 
 if __name__ == "__main__":
     application = create_app()
+
+    # The auto-reloader is genuinely useful while developing; the interactive
+    # debugger is not worth its cost. It renders a traceback with source and
+    # local variables on any unhandled error — bypassing the JSON error handler
+    # entirely — and its console is remote code execution for anyone who can
+    # reach it. So reloading is opt-in via FLASK_ENV, and `use_debugger` is
+    # pinned False rather than left to follow `debug`.
+    development = os.environ.get("FLASK_ENV") == "development"
+
+    host = os.environ.get("HOST", "127.0.0.1")
+    if development and host not in ("127.0.0.1", "localhost"):
+        # Binding a development server to a public interface is how a local
+        # convenience becomes an exposed service.
+        raise SystemExit(
+            f"Refusing to serve on {host} with FLASK_ENV=development. "
+            "Unset FLASK_ENV or bind to 127.0.0.1."
+        )
+
     application.run(
-        host=os.environ.get("HOST", "127.0.0.1"),
+        host=host,
         port=int(os.environ.get("PORT", 5000)),
-        debug=os.environ.get("FLASK_ENV") == "development",
+        debug=False,
+        use_reloader=development,
+        use_debugger=False,
     )
