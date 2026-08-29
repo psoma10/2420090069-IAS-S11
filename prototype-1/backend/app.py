@@ -27,10 +27,28 @@ from database.connection import apply_schema, init_pool
 
 logger = logging.getLogger(__name__)
 
-# Dev origins the browser may call the API from with credentials. Wildcards are
+# Origins the browser may call the API from with credentials. Wildcards are
 # not permitted with credentialed requests, so the origin is echoed back only
-# when it matches this pattern.
+# when it matches one of these.
 _DEV_ORIGIN = re.compile(r"^http://(localhost|127\.0\.0\.1)(:\d+)?$")
+
+# Deployed frontend origins, comma-separated, e.g.
+#   FRONTEND_ORIGINS=https://frontend-rouge-six-16.vercel.app,https://cybervault.example.com
+# Vercel preview deployments get a new subdomain per branch/PR, so an exact
+# host list — not a hardcoded single URL — is the only thing that scales.
+_ALLOWED_ORIGINS = {
+    origin.strip().rstrip("/")
+    for origin in os.environ.get("FRONTEND_ORIGINS", "").split(",")
+    if origin.strip()
+}
+
+
+def _origin_allowed(origin: str) -> bool:
+    if not origin:
+        return False
+    if _DEV_ORIGIN.match(origin):
+        return True
+    return origin.rstrip("/") in _ALLOWED_ORIGINS
 
 
 def _configure_logging(app: Flask) -> None:
@@ -123,7 +141,7 @@ def _register_cors(app: Flask) -> None:
     @app.after_request
     def add_cors_headers(response):
         origin = request.headers.get("Origin", "")
-        if origin and _DEV_ORIGIN.match(origin):
+        if _origin_allowed(origin):
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Credentials"] = "true"
             response.headers["Access-Control-Allow-Headers"] = "Content-Type"
@@ -176,7 +194,42 @@ def create_app(config_object: type = Config, *, init_db: bool = True) -> Flask:
     return app
 
 
-app = create_app() if os.environ.get("CYBERVAULT_EAGER_APP") else None
+def wsgi_app():
+    """Entry point for a WSGI server: ``gunicorn "app:wsgi_app()"``.
+
+    Building the app inside a function rather than at import time means each
+    gunicorn worker opens its own database pool after forking, instead of
+    inheriting a parent's sockets — shared connections across forked workers
+    fail in ways that look random.
+    """
+    return create_app()
+
+
+# A module-level `app`, so the conventional `gunicorn app:app` works too.
+#
+# Built lazily on first attribute access rather than at import: pytest imports
+# this module to reach create_app(), and building an application there would
+# open a second database pool the tests never use. A WSGI server looking up
+# `app` gets a real application; an importer that never touches it pays nothing.
+class _LazyApp:
+    """Stands in for the application until something actually uses it."""
+
+    def __init__(self):
+        self._app = None
+
+    def _resolve(self) -> Flask:
+        if self._app is None:
+            self._app = create_app()
+        return self._app
+
+    def __call__(self, environ, start_response):
+        return self._resolve()(environ, start_response)
+
+    def __getattr__(self, name):
+        return getattr(self._resolve(), name)
+
+
+app = _LazyApp()
 
 
 if __name__ == "__main__":

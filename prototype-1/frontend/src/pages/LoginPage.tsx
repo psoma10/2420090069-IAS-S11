@@ -97,7 +97,7 @@ export function LoginPage() {
       } else if (err instanceof ApiError && isOfflineCode(err.code)) {
         setServerError({
           title: "Can't reach the server",
-          text: "The CyberVault backend is not responding. Confirm it is running on port 5000, then retry.",
+          text: "The CyberVault backend is not responding. Confirm the server is running, then retry.",
           offline: true,
         });
       } else {

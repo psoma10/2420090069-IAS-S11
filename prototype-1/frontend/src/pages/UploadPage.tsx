@@ -226,7 +226,7 @@ export function UploadPage() {
       if (err instanceof ApiError && isOfflineCode(err.code)) {
         setSubmitError({
           title: "Can't reach the server",
-          text: "The document was not uploaded because the CyberVault backend is not responding. Confirm it is running on port 5000, then retry.",
+          text: "The document was not uploaded because the CyberVault backend is not responding. Confirm the server is running, then retry.",
           offline: true,
         });
       } else if (
