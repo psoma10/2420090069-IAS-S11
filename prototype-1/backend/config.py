@@ -48,8 +48,22 @@ class Config:
 
     # --- session -----------------------------------------------------------
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = False   # dev serves over http; True behind TLS
+
+    # Deployed, the frontend and backend sit on different sites (Vercel and
+    # Render), so the session cookie travels cross-site and a browser will only
+    # keep it with SameSite=None *and* Secure. Locally both sides are
+    # 127.0.0.1 over plain HTTP, where Secure would stop the cookie being
+    # stored at all — so this follows the environment rather than being pinned
+    # to whichever case was tested last.
+    #
+    # SameSite=None removes the browser's own CSRF protection. What replaces it
+    # is the JSON-only rule in core/validation.py: a cross-origin HTML form
+    # cannot send application/json, and any origin not named in
+    # FRONTEND_ORIGINS is refused by CORS before a response is readable.
+    _CROSS_SITE = bool(os.environ.get("FRONTEND_ORIGINS", "").strip())
+
+    SESSION_COOKIE_SAMESITE = "None" if _CROSS_SITE else "Lax"
+    SESSION_COOKIE_SECURE = _CROSS_SITE
     PERMANENT_SESSION_LIFETIME = 60 * 60 * 8
 
     # --- misc --------------------------------------------------------------
