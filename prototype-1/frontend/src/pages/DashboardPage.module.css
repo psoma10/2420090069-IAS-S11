@@ -1,0 +1,234 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: var(--container-max);
+  animation: pageIn var(--duration-slow) var(--ease-standard) both;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(90% 160% at 0% 0%, rgba(34, 211, 238, 0.10), transparent 60%),
+    linear-gradient(180deg, var(--color-bg-elevated), var(--color-surface));
+  overflow: hidden;
+}
+
+/* Accent spine — ties the header to the brand without shouting. */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-accent), transparent);
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+}
+
+.statusLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+/* ---------- Primary CTA ---------- */
+
+.ctaLink {
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.cta {
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.ctaLink:hover .cta {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.ctaLink:active .cta {
+  transform: translateY(0);
+}
+
+.ctaInner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Stat row ---------- */
+
+/* auto-fit rather than a fixed 4-track: the viewport-based breakpoints below
+   can't see that the sidebar takes 240px off this grid's container, so at a
+   1024px viewport four fixed tracks squeezed each card to 168px while its
+   content needed ~202px. Reflowing on the container's own width keeps every
+   card >= 210px at any width. */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+/* ---------- Panels ---------- */
+
+.panels {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panelTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.panelLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.panelLink:hover {
+  color: var(--color-accent);
+}
+
+/* ---------- Error state ---------- */
+
+.errorCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  border-color: var(--color-danger-muted);
+}
+
+.errorIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger-muted);
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+.errorBody {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.errorTitle {
+  font-size: var(--text-lg);
+}
+
+.errorText {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ---------- Responsive: 1440px -> 320px ---------- */
+
+@media (max-width: 1100px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* No .statGrid overrides below: the auto-fit track above already reflows
+   4 -> 2 -> 1 columns on the container's own width, which stays correct
+   whether or not the sidebar is taking 240px off it. */
+
+@media (max-width: 720px) {
+  .page {
+    gap: var(--space-6);
+  }
+
+  .header {
+    align-items: stretch;
+    padding: var(--space-5);
+    padding-left: var(--space-6);
+  }
+
+  .ctaLink,
+  .ctaLink > button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: var(--text-xl);
+  }
+
+  .panelHeader {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+}

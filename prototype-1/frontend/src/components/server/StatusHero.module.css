@@ -1,0 +1,183 @@
+/* Server status banner. Depth comes from a hairline top rule in the state
+   colour plus a low-alpha wash — deliberately not a saturated gradient panel. */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding: var(--space-6) var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+/* State accent rule along the top edge. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+}
+
+.online {
+  background:
+    linear-gradient(180deg, var(--color-success-muted) 0%, transparent 96px),
+    var(--color-surface);
+  border-color: color-mix(in srgb, var(--color-success) 24%, var(--color-border));
+}
+
+.online::before {
+  background: var(--color-success);
+}
+
+.offline {
+  background:
+    linear-gradient(180deg, var(--color-danger-muted) 0%, transparent 96px),
+    var(--color-surface);
+  border-color: color-mix(in srgb, var(--color-danger) 24%, var(--color-border));
+}
+
+.offline::before {
+  background: var(--color-danger);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ---------- Beacon ---------- */
+
+.beacon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+.beaconCore {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.online .beaconCore { color: var(--color-success); }
+.offline .beaconCore { color: var(--color-danger); }
+
+/* Single slow ring — a liveness cue, not decoration. Offline stays static. */
+.beaconPulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--color-success);
+  animation: beacon 2.4s var(--ease-standard) infinite;
+}
+
+@keyframes beacon {
+  0% { opacity: 0.7; transform: scale(0.7); }
+  70%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beaconPulse {
+    animation: none;
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+.statusText {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.online .statusText { color: var(--color-success); }
+.offline .statusText { color: var(--color-danger); }
+
+.summary {
+  max-width: 46ch;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ---------- Meta column ---------- */
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex: none;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.metaLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.metaValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 899.98px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+
+  .meta {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 479.98px) {
+  .statusText {
+    font-size: var(--text-2xl);
+  }
+
+  .meta {
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+}

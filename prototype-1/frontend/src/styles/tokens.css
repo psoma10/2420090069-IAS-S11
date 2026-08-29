@@ -1,0 +1,174 @@
+/*
+  CyberVault design tokens — single source of truth.
+  Dark-first professional security product. No neon/matrix cliches:
+  navy/slate base, one cyan accent for primary actions + live status,
+  monospace reserved for ciphertext/keys/hashes per PRD section 8.
+*/
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Color: surfaces ---- */
+  --color-bg: #0a0e17;
+  --color-bg-elevated: #0f1420;
+  --color-surface: #131a2a;
+  --color-surface-hover: #171f33;
+  --color-surface-active: #1b2440;
+  /* Borders. --color-border and --color-border-strong are DECORATIVE only
+     (card edges, dividers, table rules) — they intentionally sit below 3:1
+     so cards read as quiet surfaces rather than boxed-in outlines.
+     For anything the user can interact with (inputs, selects, checkboxes,
+     switches) you MUST use --color-border-control, which meets the 3:1
+     non-text contrast requirement of WCAG 1.4.11 against the field fill. */
+  --color-border: #232c42;
+  --color-border-strong: #2f3b58;
+  --color-border-control: #4e6191; /* 3.02:1 vs --color-bg-elevated */
+
+  /* ---- Color: text ----
+     Every value below is verified >= 4.5:1 (WCAG AA body text) against the
+     WORST surface it can land on (--color-surface-active #1b2440), so these
+     tokens are safe on any surface in this file. Ratios: bg / surface / s-active.
+     Do not darken these without re-running a contrast check. */
+  --color-text-primary: #e7ecf7;   /* 16.30 / 14.67 / 12.92 — AAA everywhere */
+  --color-text-secondary: #9aa7c2; /*  7.98 /  7.18 /  6.32 — AA everywhere  */
+  --color-text-tertiary: #818ca7;  /*  5.74 /  5.16 /  4.55 — AA everywhere  */
+
+  /* Disabled text is exempt from WCAG 1.4.3 (inactive controls). Held at
+     ~3:1 on surface so it still reads as "present but unavailable", never
+     as invisible. Never use this token for meaningful content. */
+  --color-text-disabled: #596587;  /*  3.34 /  3.01 /  2.65 */
+
+  /* ---- Color: brand / accent ---- */
+  --color-accent: #22d3ee;
+  --color-accent-hover: #4de1f5;
+  --color-accent-active: #17b8d4;
+  --color-accent-muted: rgba(34, 211, 238, 0.12);
+  --color-on-accent: #04141a;
+
+  /* ---- Color: semantic ---- */
+  --color-success: #34d399;
+  --color-success-muted: rgba(52, 211, 153, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-muted: rgba(251, 191, 36, 0.12);
+  --color-danger: #f87171;
+  --color-danger-hover: #fb8787;
+  --color-danger-muted: rgba(248, 113, 113, 0.12);
+  --color-info: #818cf8;
+  --color-info-muted: rgba(129, 140, 248, 0.12);
+
+  /* Foreground for text/icons sitting ON a solid semantic fill (filled
+     buttons, solid status chips). These are near-black tints of their own
+     hue rather than pure #000, and each clears AAA on its own fill:
+     danger 7.11:1, success 9.83:1, warning 11.11:1. */
+  --color-on-danger: #1a0505;
+  --color-on-success: #04140e;
+  --color-on-warning: #1a1204;
+
+  /* ---- Color: algorithm identity (badges only, not decorative) ---- */
+  --color-algo-classical: #a78bfa;
+  --color-algo-educational: #fbbf24;
+  --color-algo-modern: #22d3ee;
+
+  /* ---- Typography ---- */
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* Type scale — NEVER hardcode a font-size in a component. If a size you
+     need is missing, add it here rather than writing `font-size: 17px`.
+     Each step lists its single intended job so 8 screens stay consistent. */
+  /* 11px. Uppercase micro-labels ONLY (stat tile eyebrows, step numbers,
+     axis ticks) where the caps + letter-spacing keeps it legible. Never
+     use for sentence-case body copy. Added because screens were reaching
+     for raw 10-11px values that the scale didn't cover. */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;     /* 12px — badges, captions, table meta, hints     */
+  --text-sm: 0.8125rem;   /* 13px — labels, buttons, dense table cells      */
+  --text-base: 0.9375rem; /* 15px — DEFAULT body copy (set on <body>)       */
+  --text-md: 1rem;        /* 16px — emphasised body, large button labels    */
+  --text-lg: 1.125rem;    /* 18px — card titles / h3                        */
+  --text-xl: 1.375rem;    /* 22px — section headings / h2                   */
+  --text-2xl: 1.75rem;    /* 28px — page titles / h1                        */
+  --text-3xl: 2.25rem;    /* 36px — stat tile numbers, login wordmark       */
+
+  /* Tracking — tighten large display text, open up small caps labels. */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-caps: 0.08em;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Control sizing ----
+     Shared by Button / Input / Select / Textarea so every control on a row
+     lines up. --control-height-md is the baseline: 44px is the WCAG 2.5.5 /
+     Apple HIG minimum touch target. `sm` is BELOW that threshold — only use
+     it for controls that sit inside an already-large hit area (e.g. a chip
+     in a toolbar), never as a standalone primary action on mobile. */
+  --control-height-sm: 32px;
+  --control-height-md: 44px;
+  --control-height-lg: 52px;
+  --tap-target-min: 44px;
+
+  /* ---- Radii ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* ---- Shadows ----
+     Functional depth ONLY — shadows communicate layering (a menu floats over
+     a card), never decoration. PRD section 8 asks for restraint: no glow, no
+     coloured shadows, no gradient washes. sm/md are for raised surfaces,
+     lg is reserved for true overlays (modal, dropdown, toast). */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 3px var(--color-accent-muted);
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* ---- Layout ---- */
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 64px;
+  --container-max: 1280px;
+
+  /* ---- Z-index scale ---- */
+  --z-header: 100;
+  --z-sidebar: 90;
+  --z-dropdown: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 310;
+  --z-toast: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

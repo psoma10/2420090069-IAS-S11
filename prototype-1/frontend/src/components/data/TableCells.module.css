@@ -1,0 +1,81 @@
+/* Reusable cell renderers so Documents + Transfers stay visually identical. */
+
+.fileCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.fileIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  background: var(--color-accent-muted);
+}
+
+.fileIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fileName {
+  min-width: 0;
+  max-width: 26ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink:hover .fileName {
+  color: var(--color-accent);
+}
+
+.algoCell {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.mutedCell {
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chevronCell {
+  color: var(--color-text-tertiary);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.chevronCell svg {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+}
+
+/* Touch devices: the row link wraps a single line of text and lands at ~28px,
+   under the 44px minimum tap target (WCAG 2.5.8). Grow the hit area vertically
+   without changing the cell's visual rhythm. Coarse pointers only. */
+@media (pointer: coarse) {
+  .rowLink {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

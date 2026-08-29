@@ -1,0 +1,85 @@
+/* Shared chrome for the Documents + Transfers list screens. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  animation: pageEnter var(--duration-slow) var(--ease-standard) both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page { animation: none; }
+}
+
+/* Panel replaces Card's padding: the table needs to bleed to the edges so the
+   scroller clips cleanly, while the toolbar keeps its own inset. */
+.panel {
+  overflow: hidden;
+  padding: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(180deg, var(--color-bg-elevated), var(--color-surface));
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.resultCount {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding-bottom: var(--space-2);
+}
+
+.resultCount strong {
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-warning-muted);
+  color: var(--color-warning);
+  font-size: var(--text-xs);
+}
+
+.banner svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 640px) {
+  .toolbar {
+    padding: var(--space-4);
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filters > * {
+    flex: 1 1 150px;
+  }
+}

@@ -1,0 +1,921 @@
+/*
+  Public landing page ("/" for signed-out visitors). Renders standalone —
+  no AppShell — so header/footer chrome lives here.
+
+  House rules carried over from the rest of the app:
+    - no gradient text, no coloured glow shadows (shadows are depth only)
+    - monospace is reserved for ciphertext / keys / pipeline nodes
+    - every size, colour and gap comes from tokens.css
+  Mobile-first: base styles target 320px, breakpoints add width from there.
+*/
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  /* Section decoration (grid + radial washes) is inset:0 absolute; without
+     this a sub-pixel overhang can produce a horizontal scrollbar at ~320px. */
+  overflow-x: hidden;
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: calc(var(--z-header) + 1);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------- header --- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  border-bottom: 1px solid var(--color-border);
+  /* Slight transparency + blur so hero texture reads through on scroll,
+     with an opaque fallback for browsers without backdrop-filter. */
+  background: var(--color-bg);
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.headerInner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  min-height: var(--header-height);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.brand:hover {
+  color: var(--color-accent);
+}
+
+/* Matches the mark used on the auth screens so the two pages read as one
+   product. Flat fill + accent-muted ring, no glow. */
+.brandMark {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-muted);
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.navLink,
+.navCta {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+
+.navLink {
+  color: var(--color-text-secondary);
+}
+
+.navLink:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.navCta {
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+}
+
+.navCta:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-muted);
+  color: var(--color-accent);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------- hero --- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: var(--space-12) var(--space-4) var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Texture, not decoration-for-its-own-sake: keeps the largest surface on
+   the page from reading as a flat fill. Low-opacity, no coloured shadow. */
+.heroTexture {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(110% 80% at 12% -10%, rgba(34, 211, 238, 0.1), transparent 56%),
+    radial-gradient(90% 70% at 92% 8%, rgba(129, 140, 248, 0.09), transparent 60%);
+}
+
+.heroGrid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.3;
+  mask-image: radial-gradient(90% 70% at 15% 10%, #000 15%, transparent 75%);
+}
+
+.heroInner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-10);
+  align-items: center;
+}
+
+.heroCopy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  animation: riseIn var(--duration-slow) var(--ease-standard) both;
+}
+
+/* Tagline from PRD §25. Mono + caps, matching the auth screens' treatment. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.heroTitle {
+  max-width: 18ch;
+  /* Fluid, but clamped so it never overflows 320px or grows past the
+     3xl token's intent on wide screens. */
+  font-size: clamp(var(--text-2xl), 6.2vw, 3.25rem);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+/* The manual break only helps once the line is long enough to need it. */
+.titleBreak {
+  display: none;
+}
+
+.heroLead {
+  max-width: 56ch;
+  color: var(--color-text-secondary);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-1);
+}
+
+.primaryCta,
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  transition: background-color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.primaryCta {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.primaryCta:hover {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.primaryCta:active {
+  background: var(--color-accent-active);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondaryCta {
+  border: 1px solid var(--color-border-control);
+  color: var(--color-text-primary);
+}
+
+.secondaryCta:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.secondaryCta:active {
+  transform: translateY(0);
+}
+
+.ctaIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.primaryCta:hover .ctaIcon {
+  transform: translateX(3px);
+}
+
+/* Hero stat strip — real values only (algorithm count comes from the live
+   public endpoint, server row is omitted entirely when unreachable). */
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  margin: 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.metaLabel {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.metaValue {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.statusDotOnline,
+.statusDotOffline {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.statusDotOnline {
+  background: var(--color-success);
+}
+
+.statusDotOffline {
+  background: var(--color-text-disabled);
+}
+
+/* ----------------------------------------------------------- specimen --- */
+
+.specimen {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: riseIn var(--duration-slow) var(--ease-standard) both;
+  animation-delay: 80ms;
+}
+
+.specimenBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.specimenDots {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.specimenDots i {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+}
+
+.specimenTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-tertiary);
+}
+
+.specimenBody {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+  gap: var(--space-4);
+}
+
+.specimenBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.specimenLabel {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.specimenText,
+.specimenCipher {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  /* Long hex must wrap, never scroll the page sideways at 320px. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.specimenText {
+  color: var(--color-text-secondary);
+}
+
+.specimenCipher {
+  color: var(--color-accent);
+}
+
+.specimenDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-tertiary);
+}
+
+.specimenDivider::before,
+.specimenDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.specimenAlgo {
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------- sections --- */
+
+.section {
+  padding: var(--space-16) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sectionInner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 62ch;
+  margin-bottom: var(--space-10);
+}
+
+.sectionEyebrow {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.sectionTitle {
+  font-size: clamp(var(--text-xl), 4.6vw, var(--text-3xl));
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.sectionLead {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ------------------------------------------------------ how it works ---- */
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.step {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  transition: border-color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.step:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  transform: translateY(-2px);
+}
+
+.stepHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.stepIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-elevated);
+  color: var(--color-accent);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+.stepIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.step:hover .stepIcon {
+  border-color: var(--color-accent);
+}
+
+.stepNum {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-caps);
+  color: var(--color-text-tertiary);
+}
+
+.stepTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.stepBody {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+/* Connector between cards. Vertical on mobile (arrow rotated), horizontal
+   in the 3-up desktop grid — see the 900px breakpoint. */
+.stepConnector {
+  display: none;
+  position: absolute;
+  color: var(--color-border-strong);
+}
+
+.stepConnector svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Compact restatement of the PRD §2 pipeline. Mono, wraps freely. */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-10);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.pipeNode,
+.pipeNodeActive {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  transition: border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.pipeNode:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-secondary);
+}
+
+/* The one node that is the point of the whole diagram. */
+.pipeNodeActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent-muted);
+  color: var(--color-accent);
+}
+
+.pipeArrow {
+  color: var(--color-border-strong);
+}
+
+/* ---------------------------------------------------------- algorithms -- */
+
+.algoGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.algoCard,
+.algoCardFeatured {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.algoCard {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.algoCard:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  transform: translateY(-2px);
+}
+
+/* AES gets an accent border rather than a glow — it is the recommended
+   option, and the emphasis should read as a rule, not as lighting. */
+.algoCardFeatured {
+  border: 1px solid var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.algoCardFeatured:hover {
+  background: var(--color-surface);
+  transform: translateY(-2px);
+}
+
+.algoTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.algoName {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.algoCategory {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-tertiary);
+}
+
+.algoBody {
+  flex: 1;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.algoFoot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.algoKey {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.algoFlag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent);
+}
+
+.algoFlag svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+/* ----------------------------------------------------------- closing ---- */
+
+.closing {
+  padding: var(--space-16) var(--space-4);
+}
+
+.closingInner {
+  max-width: 60ch;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-10) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  text-align: center;
+}
+
+.closingTitle {
+  font-size: clamp(var(--text-xl), 4.4vw, var(--text-2xl));
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.closingLead {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.closingActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+/* ------------------------------------------------------------ footer ---- */
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+.footerInner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+}
+
+.footerBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.footerNote {
+  max-width: 64ch;
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-tertiary);
+}
+
+/* ------------------------------------------------------- breakpoints ---- */
+
+@media (min-width: 600px) {
+  .headerInner,
+  .hero,
+  .section,
+  .closing,
+  .footerInner {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  .specimenBody {
+    padding: var(--space-6);
+  }
+
+  .footerInner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+
+  .footerNote {
+    text-align: right;
+  }
+}
+
+@media (min-width: 900px) {
+  .hero {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: var(--space-12);
+    /* Top-aligned rather than centred: the specimen is shorter than the copy
+       column, and centring it left an obvious dead band underneath. */
+    align-items: start;
+  }
+
+  /* Optical alignment — drops the specimen's title bar level with the top
+     of the headline rather than the eyebrow above it. */
+  .specimen {
+    margin-top: var(--space-10);
+  }
+
+  .titleBreak {
+    display: inline;
+  }
+
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* Arrow sits in the gutter between cards, vertically centred. */
+  .stepConnector {
+    display: inline-flex;
+    top: 50%;
+    right: calc(var(--space-6) * -1);
+    width: var(--space-6);
+    justify-content: center;
+    transform: translate(0, -50%);
+  }
+
+  .algoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  /* Only in the 2-up range are cards wide enough to put the key format and
+     the recommendation flag on one line without crowding. The 4-up layout
+     at 1200px+ deliberately reverts to stacked. */
+  .algoFoot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 1200px) {
+  .algoGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .algoFoot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .hero,
+  .section,
+  .closing {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+/* -------------------------------------------------------------- motion -- */
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* tokens.css zeroes the duration vars under reduced-motion, but keyframe
+   animations and hover transforms need explicit neutralising too. */
+@media (prefers-reduced-motion: reduce) {
+  .heroCopy,
+  .specimen {
+    animation: none;
+  }
+
+  .step:hover,
+  .algoCard:hover,
+  .algoCardFeatured:hover,
+  .primaryCta:hover,
+  .secondaryCta:hover,
+  .primaryCta:hover .ctaIcon {
+    transform: none;
+  }
+}

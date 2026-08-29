@@ -1,0 +1,87 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.selectWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  min-width: 170px;
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.select:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+
+.select:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-focus);
+}
+
+.select option {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  color: var(--color-text-tertiary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.selectWrap:hover .chevron {
+  color: var(--color-text-secondary);
+}
+
+/* Active (non-default) filters get an accent edge so state is obvious. */
+.active .select {
+  border-color: var(--color-accent);
+  background: var(--color-accent-muted);
+}
+
+.active .chevron {
+  color: var(--color-accent);
+}
+
+/* Touch devices: the 38px control is below the 44px minimum tap target
+   (WCAG 2.5.8). Coarse pointers only, so mouse density is unchanged. */
+@media (pointer: coarse) {
+  .select {
+    min-height: 44px;
+  }
+}

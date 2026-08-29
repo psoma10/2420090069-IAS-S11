@@ -1,0 +1,206 @@
+/* PRD Screen 5 — Transfer Monitor layout. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Two-column body: pipeline on the left, payload panels on the right. */
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.panelTitle {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-5);
+}
+
+.payloadCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.actionsSpacer {
+  flex: 1;
+}
+
+.actionHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Integrity row: three states, since AES reports true/false and the
+   classical ciphers report null (no authentication tag exists to check). */
+.integrity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.integrityOk {
+  color: var(--color-success);
+}
+
+.integrityFailed {
+  color: var(--color-danger);
+}
+
+.integrityNeutral {
+  color: var(--color-text-tertiary);
+}
+
+.integrityIcon {
+  flex-shrink: 0;
+}
+
+/* Banners */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  border: 1px solid transparent;
+}
+
+.bannerIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bannerDanger {
+  background: var(--color-danger-muted);
+  border-color: color-mix(in srgb, var(--color-danger) 32%, transparent);
+  color: var(--color-danger);
+}
+
+.bannerWarning {
+  background: var(--color-warning-muted);
+  border-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+  color: var(--color-warning);
+}
+
+.bannerTitle {
+  font-weight: var(--weight-semibold);
+}
+
+.bannerBody {
+  color: var(--color-text-secondary);
+}
+
+/* Loading skeleton */
+.skeletonBody {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.skeletonPanel {
+  height: 420px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    100deg,
+    var(--color-surface) 30%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface) 70%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonPanel {
+    animation: none;
+    background: var(--color-surface);
+  }
+}
+
+@media (max-width: 1024px) {
+  .body,
+  .skeletonBody {
+    grid-template-columns: 1fr;
+  }
+
+  .skeletonPanel {
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actionsSpacer {
+    display: none;
+  }
+}

@@ -1,0 +1,70 @@
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.item + .item {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Continuous timeline rail behind the dots. */
+.item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 22px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--color-text-tertiary);
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
+.encrypt { background: var(--color-accent); }
+.transfer { background: var(--color-info); }
+.receive { background: var(--color-algo-classical); }
+.decrypt { background: var(--color-success); }
+.fail { background: var(--color-danger); }
+.default { background: var(--color-text-tertiary); }
+
+.message {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  min-width: 0;
+}
+
+.time {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 400px) {
+  .item {
+    grid-template-columns: auto 1fr;
+    row-gap: var(--space-1);
+  }
+
+  .time {
+    grid-column: 2;
+  }
+}

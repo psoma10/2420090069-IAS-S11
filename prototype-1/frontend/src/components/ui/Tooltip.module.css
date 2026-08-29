@@ -1,0 +1,74 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+}
+
+.tip {
+  position: absolute;
+  left: 50%;
+  z-index: var(--z-dropdown);
+  transform: translateX(-50%);
+  max-width: 240px;
+  width: max-content;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-active);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  text-align: center;
+  /* Hidden by default; opacity+visibility so it can transition and still
+     be removed from the a11y tree / hit-testing when closed. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard),
+    visibility var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.top {
+  bottom: calc(100% + var(--space-2));
+}
+
+.bottom {
+  top: calc(100% + var(--space-2));
+}
+
+/* Show on pointer hover and on keyboard focus alike. */
+.wrapper:hover .tip,
+.wrapper:focus-within .tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wrapper:hover .top,
+.wrapper:focus-within .top {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.wrapper:hover .bottom,
+.wrapper:focus-within .bottom {
+  transform: translateX(-50%) translateY(2px);
+}
+
+/* Touch devices have no hover: suppress rather than showing a tooltip
+   that would be stuck open after a tap. */
+@media (hover: none) {
+  .wrapper:hover .tip {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip {
+    transition: none;
+  }
+}

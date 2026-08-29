@@ -1,0 +1,96 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(231, 236, 247, 0.06),
+    transparent
+  );
+  animation: sweep 1.4s infinite;
+}
+
+@keyframes sweep {
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after { animation: none; }
+}
+
+.headerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.title { width: 220px; height: 32px; }
+.cta { width: 190px; height: 44px; border-radius: var(--radius-md); }
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.statIcon { width: 40px; height: 40px; border-radius: var(--radius-md); flex-shrink: 0; }
+.statText { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.statLabel { width: 60%; height: 10px; }
+.statValue { width: 40%; height: 24px; }
+
+.panels {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 960px) {
+  .panels { grid-template-columns: 1fr; }
+}
+
+.panel {
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.panelTitle { width: 160px; height: 16px; margin-bottom: var(--space-5); }
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.rowMain { width: 55%; height: 14px; }
+.rowMeta { width: 80%; height: 10px; }

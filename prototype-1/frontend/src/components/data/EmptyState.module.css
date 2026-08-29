@@ -1,0 +1,55 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-lg);
+  color: var(--color-accent);
+  background: var(--color-accent-muted);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.description {
+  max-width: 44ch;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.action {
+  margin-top: var(--space-3);
+}
+
+/* Error variant keeps the same layout but swaps the accent for danger. */
+.iconDanger {
+  color: var(--color-danger);
+  background: var(--color-danger-muted);
+  border-color: rgba(248, 113, 113, 0.24);
+}
+
+.iconWarning {
+  color: var(--color-warning);
+  background: var(--color-warning-muted);
+  border-color: rgba(251, 191, 36, 0.24);
+}
