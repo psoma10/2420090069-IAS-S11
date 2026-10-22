@@ -1,0 +1,7 @@
+.settings{display:flex;flex-direction:column;gap:var(--s-5);max-width:760px}
+.settings__row{max-width:320px}
+.settings__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s-4)}
+.settings__form{display:flex;flex-direction:column;gap:var(--s-5)}
+.settings__actions{display:flex;gap:var(--s-3);flex-wrap:wrap}
+.settings__live{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;color:var(--text-1);font-size:13.5px}
+.settings__center{display:grid;place-items:center;padding:var(--s-5)}

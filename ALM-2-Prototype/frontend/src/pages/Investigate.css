@@ -1,0 +1,32 @@
+.inv{display:flex;flex-direction:column;gap:var(--s-5)}
+.inv .ui-pageheader{margin-bottom:0}
+.inv-search{display:flex;gap:var(--s-2);flex-wrap:wrap;align-items:flex-start}
+.inv-search__field{flex:1 1 240px;min-width:0}
+.inv-search__err{color:var(--deny);font-size:12.5px;margin-top:var(--s-1)}
+.inv-head{display:flex;justify-content:space-between;gap:var(--s-4);flex-wrap:wrap;align-items:flex-start}
+.inv-id{min-width:0}
+.inv-id__ip{font-size:26px;font-weight:600;letter-spacing:-.02em;word-break:break-all}
+.inv-id__name{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap;margin-top:var(--s-2);color:var(--text-1)}
+.inv-id__meta{color:var(--text-2);font-size:12.5px;margin-top:var(--s-2)}
+.inv-actions{display:flex;gap:var(--s-2);flex-wrap:wrap}
+.inv-actions a{text-decoration:none}
+.inv-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4)}
+.inv-cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
+.inv-side{display:flex;flex-direction:column;gap:var(--s-5);min-width:0}
+.inv-tl{list-style:none;margin:0;padding:0;max-height:560px;overflow:auto}
+.inv-tl li{display:flex;gap:var(--s-3);align-items:baseline;flex-wrap:wrap;padding:var(--s-2) 0;border-bottom:1px solid var(--line);font-size:13px}
+.inv-tl li:last-child{border-bottom:0}
+.inv-tl__time{color:var(--text-2);font-size:12px;flex:none;min-width:64px}
+.inv-tl__what{flex:1 1 200px;min-width:0;color:var(--text-1);overflow-wrap:anywhere}
+.inv-tl__rule{color:var(--text-2);font-size:12px}
+.inv-list{list-style:none;margin:0;padding:0}
+.inv-list li{display:flex;justify-content:space-between;gap:var(--s-3);padding:var(--s-2) 0;border-bottom:1px solid var(--line);font-size:13px;align-items:center}
+.inv-list li:last-child{border-bottom:0}
+.inv-list b{color:var(--text-1)}
+.inv-sugg{display:flex;gap:var(--s-2);flex-wrap:wrap;justify-content:center;margin-top:var(--s-3)}
+.inv-sugg a{text-decoration:none}
+.inv-load{display:flex;align-items:center;gap:var(--s-2);color:var(--text-2);padding:var(--s-5) 0}
+.inv-empty{color:var(--text-2);font-size:13px;padding:var(--s-3) 0}
+.inv-empty--pad{padding:var(--s-4) var(--s-5)}
+@media (max-width:900px){.inv-cols{grid-template-columns:minmax(0,1fr)}.inv-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.inv-id__ip{font-size:22px}.inv-search{width:100%}}

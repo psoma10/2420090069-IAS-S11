@@ -1,0 +1,73 @@
+/* Sentinel design tokens — calm, professional dark theme. All pages must use these variables. */
+:root {
+  --bg-0: #0b0f14;
+  --bg-1: #0f141b;
+  --bg-2: #151b24;
+  --bg-3: #1c2430;
+  --line: #222b37;
+  --line-strong: #2f3a49;
+  --text-0: #eef2f6;
+  --text-1: #b4bfcb;
+  --text-2: #7d8a99;
+  --accent: #3dd6b0;
+  --accent-dim: rgba(61, 214, 176, .12);
+  --cyan: #5bb8f0;
+  --violet: #a594f9;
+  --ok: #3fcf8e;
+  --sev-low: #5bb8f0;
+  --sev-medium: #f2b94b;
+  --sev-high: #f27c8a;
+  --sev-critical: #ef4e78;
+  --allow: #3fcf8e;
+  --deny: #f27c8a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 12px 32px rgba(0, 0, 0, .4);
+  --glow: 0 1px 0 rgba(255, 255, 255, .02);
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --on-accent: #06241c;
+  --on-crit: #2a0510;
+  --overlay: rgba(5, 8, 12, .7);
+  --sidebar-w: 260px;
+  color-scheme: dark;
+
+  /* spacing scale */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+}
+
+/* Light theme: text pairs verified >= 4.5:1 on bg-1/bg-2/bg-3 */
+:root[data-theme="light"] {
+  --bg-0: #ffffff;
+  --bg-1: #f3f5f8;
+  --bg-2: #ffffff;
+  --bg-3: #e8edf3;
+  --line: #dde3ea;
+  --line-strong: #c3ccd7;
+  --text-0: #0f1720;
+  --text-1: #3b4857;
+  --text-2: #566373;
+  --accent: #0a735c;
+  --accent-dim: rgba(10, 115, 92, .12);
+  --cyan: #0a6aa8;
+  --violet: #5a43d1;
+  --ok: #0a7446;
+  --sev-low: #0a6aa8;
+  --sev-medium: #8a5300;
+  --sev-high: #b8243b;
+  --sev-critical: #b0103c;
+  --allow: #0a7446;
+  --deny: #b8243b;
+  --shadow: 0 12px 32px rgba(15, 23, 32, .16);
+  --glow: 0 1px 2px rgba(15, 23, 32, .05);
+  --on-accent: #ffffff;
+  --on-crit: #ffffff;
+  --overlay: rgba(15, 23, 32, .45);
+  color-scheme: light;
+}
