@@ -202,8 +202,15 @@ class DocumentService:
 
         normalized_algorithm = (algorithm or "").strip().lower() or None
 
+        # The document text is stored in the row itself. The original design
+        # kept only a path and wrote the bytes to storage/uploads, which works
+        # locally and loses every document on a host with an ephemeral
+        # filesystem: a redeploy wipes the disk, the rows survive, and each one
+        # then points at bytes that are gone. At a 10 KB ceiling the content
+        # belongs in the database, which is the only durable store here.
+        #
         # The id is needed to build the stored name, so the row goes in first
-        # with a placeholder, and the real name is written back once known.
+        # with a placeholder and the real name is written back once known.
         document = DocumentRepository.create(
             user_id=user_id,
             filename=original,
@@ -211,20 +218,35 @@ class DocumentService:
             file_size=len(raw),
             algorithm=normalized_algorithm,
             direction=normalized_direction,
+            content=text,
         )
 
         stored_name = _safe_stored_name(document["id"], original)
         try:
-            path = _resolve_within_upload_dir(stored_name)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
             document = DocumentService._persist_stored_name(
                 document["id"], stored_name
             )
         except Exception:
-            # Never leave a row pointing at bytes that are not there.
+            # The row is the document now, so a failure here leaves nothing
+            # useful behind.
             DocumentRepository.delete(document["id"], user_id)
             raise
+
+        # A copy on disk, written after the durable store has already
+        # succeeded. It makes the uploaded files visible while developing and
+        # is never read back unless a row predates the content column, so a
+        # read-only or ephemeral filesystem is not an error worth failing an
+        # upload over.
+        try:
+            path = _resolve_within_upload_dir(stored_name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        except (OSError, ValidationError):
+            logger.info(
+                "Could not write the on-disk copy of document %s; "
+                "the stored content is unaffected",
+                document["id"],
+            )
 
         return DocumentService._to_api(document)
 
@@ -297,21 +319,39 @@ class DocumentService:
     # ---------------------------------------------------------------- helpers
     @staticmethod
     def _require(document_id: int, user_id: int) -> dict:
-        document = DocumentRepository.find_by_id(document_id, user_id)
+        # Every path that reads a document's text funnels through here, so the
+        # content is fetched with the row rather than in a second query.
+        document = DocumentRepository.find_by_id(
+            document_id, user_id, with_content=True
+        )
         if document is None:
             raise DocumentNotFoundError()
         return document
 
     @staticmethod
     def _read_file(document: dict) -> str:
-        path = DocumentService.file_path(document)
+        """Return a document's text.
+
+        The database column is authoritative. The filesystem is consulted only
+        for rows written before that column existed, whose bytes may still be
+        on disk if the process has not been redeployed since.
+        """
+        content = document.get("content")
+        if content is not None:
+            return content
+
         try:
+            path = DocumentService.file_path(document)
             return path.read_text(encoding="utf-8")
-        except FileNotFoundError as exc:
-            # The row exists but its bytes do not. That is a server-side
-            # inconsistency, not a client mistake, so it is logged in full and
-            # reported as a missing document rather than a 500 leaking a path.
-            logger.error("Document %s has no file at %s", document["id"], path)
+        except (FileNotFoundError, ValidationError) as exc:
+            # A row from before the content column whose file is also gone —
+            # on an ephemeral filesystem, that is every such row after the
+            # first redeploy. The bytes are unrecoverable, so this is reported
+            # as a missing document rather than a 500 leaking a path.
+            logger.error(
+                "Document %s has no stored content and no file on disk",
+                document["id"],
+            )
             raise DocumentNotFoundError(
                 "The stored file for this document is missing"
             ) from exc

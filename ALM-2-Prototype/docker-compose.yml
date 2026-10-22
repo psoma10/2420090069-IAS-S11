@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      SENTINEL_DB: /data/sentinel.db
+    volumes:
+      - sentinel-data:/data
+    ports:
+      - "${SENTINEL_API_PORT:-48731}:48731"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:48731/api/health',timeout=2).status==200 else 1)"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${SENTINEL_FE_PORT:-48732}:80"
+    restart: unless-stopped
+
+volumes:
+  sentinel-data:

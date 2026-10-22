@@ -12,10 +12,14 @@ from __future__ import annotations
 from database.connection import get_cursor
 from repositories.base import clamp_limit, clamp_offset, serialize, serialize_many
 
+# `content` is deliberately absent: a listing of 200 documents should not drag
+# 200 document bodies across the wire. Callers that need the text ask for it
+# explicitly through find_by_id(..., with_content=True).
 FIELDS = (
     "id, user_id, filename, stored_name, file_size, algorithm, "
     "status, direction, created_at"
 )
+FIELDS_WITH_CONTENT = FIELDS + ", content"
 
 VALID_STATUSES = ("UPLOADED", "ENCRYPTED", "TRANSFERRED")
 VALID_DIRECTIONS = ("CLIENT_TO_SERVER", "SERVER_TO_CLIENT")
@@ -34,22 +38,31 @@ class DocumentRepository:
         algorithm: str | None = None,
         direction: str = "CLIENT_TO_SERVER",
         status: str = "UPLOADED",
+        content: str | None = None,
     ) -> dict:
         with get_cursor() as cur:
             cur.execute(
                 f"INSERT INTO documents "
-                f"(user_id, filename, stored_name, file_size, algorithm, direction, status) "
-                f"VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING {FIELDS}",
-                (user_id, filename, stored_name, file_size, algorithm, direction, status),
+                f"(user_id, filename, stored_name, file_size, algorithm, direction, "
+                f"status, content) "
+                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING {FIELDS}",
+                (user_id, filename, stored_name, file_size, algorithm, direction,
+                 status, content),
             )
             return serialize(cur.fetchone())
 
     @staticmethod
-    def find_by_id(document_id: int, user_id: int) -> dict | None:
-        """Fetch one document owned by ``user_id``, or ``None``."""
+    def find_by_id(document_id: int, user_id: int, *,
+                   with_content: bool = False) -> dict | None:
+        """Fetch one document owned by ``user_id``, or ``None``.
+
+        ``with_content`` includes the stored text. It is off by default so a
+        caller that only needs metadata does not pull the whole document.
+        """
+        columns = FIELDS_WITH_CONTENT if with_content else FIELDS
         with get_cursor() as cur:
             cur.execute(
-                f"SELECT {FIELDS} FROM documents WHERE id = %s AND user_id = %s",
+                f"SELECT {columns} FROM documents WHERE id = %s AND user_id = %s",
                 (document_id, user_id),
             )
             return serialize(cur.fetchone())
@@ -129,4 +142,5 @@ class DocumentRepository:
             return cur.rowcount > 0
 
 
-__all__ = ["DocumentRepository", "FIELDS", "VALID_STATUSES", "VALID_DIRECTIONS"]
+__all__ = ["DocumentRepository", "FIELDS", "FIELDS_WITH_CONTENT",
+           "VALID_STATUSES", "VALID_DIRECTIONS"]

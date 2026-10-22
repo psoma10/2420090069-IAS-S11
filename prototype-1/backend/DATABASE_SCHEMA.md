@@ -74,6 +74,7 @@ CREATE TABLE documents (
     filename    TEXT        NOT NULL,          -- original name, display only
     stored_name TEXT        NOT NULL,          -- server-generated, safe on disk
     file_size   INTEGER     NOT NULL,          -- bytes
+    content     TEXT,                          -- the document text itself
     algorithm   TEXT,                          -- intended algorithm, nullable
     status      TEXT        NOT NULL DEFAULT 'UPLOADED',
     direction   TEXT        NOT NULL DEFAULT 'CLIENT_TO_SERVER',
@@ -89,6 +90,18 @@ CREATE INDEX idx_documents_user ON documents (user_id, created_at DESC);
 
 `filename` and `stored_name` are separate on purpose: the user-supplied name is
 never used as a path. `stored_name` is `{id}_{secure_filename(original)}`.
+
+`content` holds the document text, and is the authoritative copy. An earlier
+design stored only `stored_name` and wrote the bytes to `storage/uploads`,
+which works locally and loses every document on a host with an ephemeral
+filesystem — a redeploy wipes the disk, the rows survive, and each one then
+points at bytes that are gone. At a 10 KB ceiling the text belongs in the row.
+A copy is still written to disk for convenience while developing, but it is
+only read back for rows created before this column existed.
+
+The column is excluded from `FIELDS`, so a listing of 200 documents does not
+drag 200 document bodies with it; callers that need the text pass
+`with_content=True`.
 
 ---
 

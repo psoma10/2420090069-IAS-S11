@@ -1,0 +1,12 @@
+{
+  "name": "sentinel",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sentinel IDS and firewall simulator - root convenience scripts",
+  "scripts": {
+    "dev": "node -e \"const w=process.platform==='win32';const r=require('child_process').spawnSync(w?'powershell':'bash',w?['-NoProfile','-ExecutionPolicy','Bypass','-File','start-all.ps1']:['./start-all.sh'],{stdio:'inherit'});process.exit(r.status||0)\"",
+    "test:backend": "cd backend && python -m pytest -q",
+    "test:e2e": "cd qa/e2e && npx playwright test",
+    "build": "cd frontend && npm run build"
+  }
+}

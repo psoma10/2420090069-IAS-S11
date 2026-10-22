@@ -136,3 +136,14 @@ CREATE TABLE IF NOT EXISTS document_shares (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_shares_token ON document_shares (token);
 CREATE INDEX IF NOT EXISTS idx_shares_document ON document_shares (document_id);
 CREATE INDEX IF NOT EXISTS idx_shares_user ON document_shares (user_id, created_at DESC);
+
+-- Document contents live in the database, not on disk.
+--
+-- The original design wrote uploads to storage/uploads and kept only a path
+-- here. That works locally and fails on any host with an ephemeral filesystem:
+-- a redeploy wipes the disk, the row survives, and every document 404s with
+-- its bytes gone for good. At a 10 KB ceiling the content belongs in the row.
+--
+-- Nullable because rows created before this column existed have no content to
+-- put in it, and their files are already unrecoverable.
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS content TEXT;

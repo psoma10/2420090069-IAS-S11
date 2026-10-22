@@ -1,7 +1,7 @@
 # CyberVault Backend — Architecture
 
 Backend for CyberVault, a secure client–server document exchange prototype.
-Flask + SQLite + PyCryptodome. Consumed by a separately-developed frontend
+Flask + PostgreSQL (Neon) + PyCryptodome. Consumed by a separately-developed frontend
 purely over the REST API described in `API_CONTRACT.md`.
 
 ---
@@ -29,7 +29,7 @@ core/            errors, response envelope, auth decorator, validation
 
 ### Hard rules
 
-1. `routes/` must not `import sqlite3` or import anything from `crypto/`.
+1. `routes/` must not import a database driver or anything from `crypto/`.
 2. `crypto/` must not import Flask, the database, or any other project module.
    Each cipher is a standalone, testable unit.
 3. Only `repositories/` writes SQL.
@@ -60,7 +60,7 @@ prototype-1/backend/
 │   └── aes.py
 │
 ├── database/
-│   ├── connection.py          per-request sqlite3 connection
+│   ├── connection.py          pooled PostgreSQL connections
 │   └── schema.sql             DDL, applied at startup
 │
 ├── repositories/
@@ -85,7 +85,7 @@ prototype-1/backend/
 │   └── system.py              /api/dashboard, /api/server/status, /api/activity
 │
 ├── storage/
-│   ├── uploads/               plaintext as uploaded
+│   ├── uploads/               development copies; the database is authoritative
 │   ├── encrypted/             ciphertext payloads
 │   └── decrypted/             recovered plaintext
 │
@@ -106,8 +106,8 @@ encrypt(plaintext: str, key: str) -> str   # returns ciphertext as text
 decrypt(ciphertext: str, key: str) -> str  # returns recovered plaintext
 ```
 
-Ciphertext is always a **string**, so it is safe to store in SQLite TEXT
-columns, embed in JSON, and display in the UI.
+Ciphertext is always a **string**, so it is safe to store in a TEXT column,
+embed in JSON, and display in the UI.
 
 | Algorithm | Ciphertext encoding | Key format |
 |---|---|---|
@@ -206,6 +206,11 @@ the size ceiling, enforced at upload time (see §6).
 
 Rejected: empty files, non-`.txt` extensions, bytes that fail UTF-8 decode,
 and any filename that fails the safe-name check.
+
+Document text is stored in the `documents.content` column, not on the
+filesystem. The upload directory still receives a copy while developing, but
+nothing reads it back: the database is the only durable store, and a host with
+an ephemeral filesystem would otherwise lose every document on redeploy.
 
 Stored filenames are generated server-side as
 `{document_id}_{secure_filename(original)}`. The original name is kept only as
