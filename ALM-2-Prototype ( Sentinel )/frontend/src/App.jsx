@@ -15,6 +15,7 @@ const ThreatArticle = lazy(() => import('./pages/ThreatArticle.jsx'))
 const Labs = lazy(() => import('./pages/Labs.jsx'))
 const About = lazy(() => import('./pages/About.jsx'))
 const Investigate = lazy(() => import('./pages/Investigate.jsx'))
+const AuditLog = lazy(() => import('./pages/AuditLog.jsx'))
 const Settings = lazy(() => import('./pages/Settings.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="encyclopedia" element={<Encyclopedia />} />
           <Route path="encyclopedia/:slug" element={<ThreatArticle />} />
           <Route path="lab" element={<Labs />} />
+          <Route path="audit" element={<AuditLog />} />
           <Route path="settings" element={<Settings />} />
           <Route path="about" element={<About />} />
           <Route path="*" element={<NotFound />} />

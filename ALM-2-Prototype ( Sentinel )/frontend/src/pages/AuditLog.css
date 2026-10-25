@@ -1,0 +1,44 @@
+.al { display: flex; flex-direction: column; gap: var(--s-5); }
+.al-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.al-panel .ui-tabs { padding: 0 var(--s-4); }
+.al-pad { padding: var(--s-4); }
+.al-load { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 48px 10px; color: var(--text-2); font-size: 13px; }
+
+.al-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--line); }
+.al-search { position: relative; flex: 1 1 260px; max-width: 420px; color: var(--text-2); }
+.al-search > svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.al-search .ui-input { padding-left: 34px; width: 100%; }
+.al-range { font-size: 12.5px; color: var(--text-1); margin-left: auto; white-space: nowrap; }
+.al-auto { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.al-auto i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-2); }
+.al-auto.is-on { color: var(--accent); }
+.al-auto.is-on i { background: var(--accent); }
+.al-pager { display: flex; gap: var(--s-2); }
+
+.al-table td { padding-top: 11px; padding-bottom: 11px; }
+.al-time { white-space: nowrap; }
+.al-action { color: var(--accent); }
+.al-num { text-align: right; white-space: nowrap; }
+.al-ell { display: block; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.al-arrow { color: var(--text-2); margin: 0 4px; }
+.al-chev { width: 28px; color: var(--text-2); }
+.al-chev svg { transition: transform .15s; }
+.al-row.is-open .al-chev svg { transform: rotate(90deg); }
+.al-row.is-open { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.al-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.ui-table tr.al-detail:hover { background: transparent; }
+.al-detail td { background: var(--bg-2); padding-top: var(--s-4); padding-bottom: var(--s-4); }
+.al-detail__grid { display: grid; grid-template-columns: minmax(220px, 320px) minmax(0, 1fr); gap: var(--s-5); align-items: start; }
+.al-meta { margin: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.al-kv { display: flex; gap: var(--s-3); font-size: 12.5px; }
+.al-kv dt { flex: 0 0 76px; color: var(--text-2); }
+.al-kv dd { margin: 0; color: var(--text-0); word-break: break-all; }
+.al-json__t { font-size: 12px; color: var(--text-2); margin-bottom: var(--s-2); }
+.al-json pre { margin: 0; max-height: 260px; overflow: auto; padding: var(--s-3) var(--s-4); background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 12px; line-height: 1.55; color: var(--text-0); }
+
+@media (max-width: 900px) {
+  .al-detail__grid { grid-template-columns: 1fr; }
+  .al-range { margin-left: 0; }
+  .al-bar { padding: var(--s-4); }
+}

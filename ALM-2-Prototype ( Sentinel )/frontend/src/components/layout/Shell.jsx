@@ -29,6 +29,7 @@ const NAV = [
     { to: '/about', label: 'About', icon: 'info', key: 'i' },
   ] },
   { group: 'System', items: [
+    { to: '/audit', label: 'Audit Log', icon: 'lock', key: 'u' },
     { to: '/settings', label: 'Settings', icon: 'settings', key: 's' },
   ] },
 ]

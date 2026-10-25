@@ -20,6 +20,24 @@ async function req(method, path, body) {
   return res.status === 204 ? null : res.json()
 }
 
+// Like req() but also returns the X-Total-Count header: { rows, total } (total is null when absent).
+async function reqWithTotal(method, path) {
+  const res = await fetch(BASE + path, { method })
+  if (!res.ok) {
+    let detail = res.statusText
+    try {
+      const j = await res.json()
+      detail = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail)
+    } catch { /* ignore */ }
+    const err = new Error(detail)
+    err.status = res.status
+    throw err
+  }
+  const h = res.headers.get('X-Total-Count')
+  const total = h !== null && h !== '' && !isNaN(Number(h)) ? Number(h) : null
+  return { rows: await res.json(), total }
+}
+
 const qs = (o = {}) => {
   const p = new URLSearchParams(Object.entries(o).filter(([, v]) => v !== undefined && v !== '' && v !== null))
   const s = p.toString()
@@ -73,6 +91,9 @@ export const api = {
   setLive: (body) => req('PUT', '/live', body),
   getSettings: () => req('GET', '/settings'),
   updateSettings: (body) => req('PUT', '/settings', body),
+  // audit log (hash-chained files in logs/)
+  audit: (q) => reqWithTotal('GET', `/audit${qs(q)}`),
+  auditVerify: (kind = 'audit') => req('GET', `/audit/verify${qs({ kind })}`),
 }
 
 const EVENT_TYPES = ['summary', 'alert', 'change', 'ping']
