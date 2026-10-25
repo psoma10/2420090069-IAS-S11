@@ -10,6 +10,7 @@ from .clock import Clock, system_clock
 from .db import DEFAULT_DB_PATH, Database
 from .firewall import FirewallEngine
 from .ids_rules import IdsEngine
+from .live import LiveTraffic
 from .simulator import Simulator
 
 VERSION = "1.0.0"
@@ -30,6 +31,7 @@ class AppContext:
         self.anomaly = AnomalyEngine(clock, AnomalyConfig(**cfg) if cfg else AnomalyConfig())
         self.sim = Simulator(self.db, self.firewall, self.ids, self.anomaly, self.bus, clock, seed,
                          self.events)
+        self.live = LiveTraffic(self)
         if auto_seed:
             if self.db.scalar("SELECT COUNT(*) FROM hosts") == 0:
                 self.sim.seed()

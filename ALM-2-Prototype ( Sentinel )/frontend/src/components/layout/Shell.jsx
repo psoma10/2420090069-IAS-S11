@@ -68,6 +68,16 @@ function Frame() {
   const [palette, setPalette] = useState(false)
   const { theme, toggle: toggleTheme } = useTheme()
   const live = useLiveStatus()
+  const feed = usePolling(() => api.live(), 5000, [], { relax: false })
+  const feedOn = !!feed.data?.running
+  const toggleFeed = async () => {
+    try {
+      await api.setLive({ enabled: !feed.data?.enabled })
+      feed.refresh()
+    } catch (e) {
+      toast.error(e.message)
+    }
+  }
 
   useEffect(() => {
     setOpen(false)
@@ -179,6 +189,10 @@ function Frame() {
           </button>
           <button type="button" className="cp-iconbtn" onClick={toggleTheme} aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'} title="Toggle theme">
             <Icon name={theme === 'light' ? 'moon' : 'sun'} size={17} />
+          </button>
+          <button type="button" className={`feedbtn ${feedOn ? 'is-on' : ''}`} onClick={toggleFeed} disabled={!online || !feed.data}
+            aria-pressed={feedOn} title={feedOn ? 'Live traffic feed is running. Click to pause.' : 'Live traffic feed is paused. Click to resume.'}>
+            <i className="feedbtn__dot" aria-hidden="true" /> Live feed: {feedOn ? 'On' : 'Off'}
           </button>
           <Button size="sm" variant="subtle" icon="download" onClick={() => setConfirm('seed')} disabled={!online}>Reseed</Button>
           <Button size="sm" variant="danger" icon="refresh" onClick={() => setConfirm('reset')} disabled={!online}>Reset simulation</Button>

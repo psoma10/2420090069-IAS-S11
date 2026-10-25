@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
 
@@ -14,14 +15,23 @@ from .clock import Clock, system_clock
 from .context import VERSION, AppContext
 from .db import DEFAULT_DB_PATH
 from .routers import alerts, anomaly, events, firewall, hosts, ids, investigate, settings, sim, stats, traffic
+from .routers import live as live_router
 
 # Any localhost port: the launcher picks the next free port when the defaults are taken.
 ORIGIN_REGEX = r"^http://(localhost|127\.0\.0\.1)(:\d+)?$"
 
 
 def create_app(db_path: Optional[str | Path] = None, clock: Clock = system_clock, seed: Optional[int] = None,
-               auto_seed: bool = True) -> FastAPI:
-    app = FastAPI(title="Sentinel IDS & Firewall Simulator", version=VERSION)
+               auto_seed: bool = True, live: bool = False) -> FastAPI:
+    """``live=True`` starts the background live-traffic thread with the server (off by default so tests stay deterministic)."""
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        if live:
+            app.state.ctx.live.start()
+        yield
+        app.state.ctx.live.stop()
+
+    app = FastAPI(title="Sentinel IDS & Firewall Simulator", version=VERSION, lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origin_regex=ORIGIN_REGEX, allow_methods=["*"], allow_headers=["*"],
                        expose_headers=["X-Total-Count"])
     app.state.ctx = AppContext(db_path or os.environ.get("SENTINEL_DB", DEFAULT_DB_PATH), clock, seed, auto_seed)
@@ -36,7 +46,7 @@ def create_app(db_path: Optional[str | Path] = None, clock: Clock = system_clock
         errors: list[Any] = [{"loc": list(e["loc"]), "msg": e["msg"]} for e in exc.errors()]
         return JSONResponse(status_code=422, content={"detail": "; ".join(msgs), "errors": errors})
 
-    for module in (sim, firewall, hosts, traffic, alerts, ids, anomaly, stats, events, investigate, settings):
+    for module in (sim, firewall, hosts, traffic, alerts, ids, anomaly, stats, events, investigate, settings, live_router):
         app.include_router(module.router)
     return app
 
@@ -49,6 +59,6 @@ def __getattr__(name: str) -> FastAPI:
     global _app
     if name == "app":
         if _app is None:
-            _app = create_app()
+            _app = create_app(live=os.environ.get("SENTINEL_LIVE", "1") != "0")
         return _app
     raise AttributeError(name)

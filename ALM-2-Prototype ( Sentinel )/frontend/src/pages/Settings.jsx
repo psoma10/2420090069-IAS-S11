@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api/client.js'
 import { useLiveStatus } from '../hooks/useEvents.js'
+import { usePolling } from '../hooks/usePolling.js'
 import { useTheme } from '../components/layout/theme.js'
 import { PageHeader, Panel, Field, Input, Select, Button, Badge, ErrorState, Spinner, useToast } from '../components/ui/index.js'
 import './Settings.css'
@@ -42,6 +43,17 @@ export default function Settings() {
   const { theme, preference, setPreference } = useTheme()
   const live = useLiveStatus()
   const L = LIVE[live] || LIVE.connecting
+
+  const { data: feed, refresh: refreshFeed } = usePolling(() => api.live(), 3000, [], { relax: false })
+  const saveFeed = async (patch) => {
+    try {
+      await api.setLive(patch)
+      refreshFeed()
+      toast.success('Live feed updated.', 'Settings saved')
+    } catch (err) {
+      toast.error(err.message)
+    }
+  }
 
   const [cfg, setCfg] = useState(null)
   const [form, setForm] = useState({ packet_retention: '', alert_retention: '' })
@@ -130,6 +142,32 @@ export default function Settings() {
               </Select>
             </Field>
           </div>
+        </Panel>
+
+        <Panel title="Live traffic feed" subtitle="Background traffic that keeps the dashboards moving in real time, with occasional simulated attacks.">
+          {!feed ? <div className="settings__center"><Spinner label="Loading live feed" /></div> : (
+            <div className="settings__form">
+              <div className="settings__live" role="status">
+                <Badge tone={feed.running ? 'allow' : 'neutral'} dot>{feed.running ? 'Running' : 'Paused'}</Badge>
+                <span>{feed.packets} packets and {feed.attacks} attacks generated this session{feed.last_attack ? `; last attack: ${feed.last_attack.replace('_', ' ')}` : ''}.</span>
+              </div>
+              <div className="settings__grid">
+                <Field label="Feed" hint="Pause to stop all background traffic.">
+                  <Select value={feed.enabled ? 'on' : 'off'} onChange={(e) => saveFeed({ enabled: e.target.value === 'on' })}>
+                    <option value="on">On</option><option value="off">Off</option>
+                  </Select>
+                </Field>
+                <Field label="Benign traffic (packets/second)" hint="Average rate, 0.2 to 20.">
+                  <Input type="number" min="0.2" max="20" step="0.2" mono defaultValue={feed.rate} key={`r${feed.rate}`}
+                    onBlur={(e) => e.target.value !== String(feed.rate) && saveFeed({ rate: Number(e.target.value) })} />
+                </Field>
+                <Field label="Attack interval (seconds)" hint="Mean time between simulated attacks; 0 disables attacks.">
+                  <Input type="number" min="0" max="3600" step="5" mono defaultValue={feed.attack_interval} key={`a${feed.attack_interval}`}
+                    onBlur={(e) => e.target.value !== String(feed.attack_interval) && saveFeed({ attack_interval: Number(e.target.value) })} />
+                </Field>
+              </div>
+            </div>
+          )}
         </Panel>
 
         <Panel title="Data retention" subtitle="Older records beyond these limits are discarded automatically.">

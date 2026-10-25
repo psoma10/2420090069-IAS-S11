@@ -69,6 +69,8 @@ export const api = {
   summary: () => req('GET', '/stats/summary'),
   // investigation + settings
   investigate: (ip) => req('GET', `/investigate/${encodeURIComponent(ip)}`),
+  live: () => req('GET', '/live'),
+  setLive: (body) => req('PUT', '/live', body),
   getSettings: () => req('GET', '/settings'),
   updateSettings: (body) => req('PUT', '/settings', body),
 }
