@@ -233,6 +233,16 @@ The client de-duplicates by alert `id`, so the backlog fetch, stream events and 
 - **Launchers**: `start-all.*` pick the next free port when 48731 / 48732 are taken and pass them to uvicorn and Vite via `SENTINEL_API_PORT` / `SENTINEL_FE_PORT`.
 - **Docker**: `docker-compose.yml` runs `backend` (uvicorn, SQLite on the `sentinel-data` volume via `SENTINEL_DB`) and `frontend` (nginx serving the Vite build, proxying `/api` with `proxy_buffering off`, HTTP/1.1 and a long `proxy_read_timeout` for SSE).
 
+## Audit logging
+
+All runtime logs live in one folder (`SENTINEL_LOG_DIR`, default `<project>/logs`, `/data/logs` in Docker); the project root stays clean. `app/audit.py` owns it:
+
+- `audit.log`: a pure-ASGI middleware records every mutating `/api` request (actor IP, derived action such as `firewall.rule.create`, target, HTTP status, outcome, duration and a size-bounded summary of the JSON body). The body is buffered and replayed, so routes are unaffected; failed validations are recorded as failures; `GET` and `/api/audit*` are never recorded; an I/O error in the logger is swallowed rather than failing the request.
+- `security.log`: `Simulator.process` writes one entry per alert after it is published, so the file is a durable copy of what the pipeline raised.
+- `app.log`: ordinary human-readable logging for `sentinel.*` and uvicorn errors.
+- **Tamper evidence**: `audit.log` and `security.log` are JSON Lines, append-only and hash-chained (`seq`, `prev`, `hash` = sha256 of the canonical entry). Each chain resumes from the last line after a restart and survives size-based rotation (5 MB x 5). `GET /api/audit/verify` recomputes the chain and returns the first bad `seq`. This detects edits and deletions inside the file; it cannot detect truncation of the newest lines or a full rewrite by someone who recomputes every hash (that would need an external anchor).
+- Read API: `GET /api/audit` (newest first, `limit/offset/q`, `X-Total-Count`) powers the Audit Log page.
+
 ## 7. Design decisions and trade-offs
 
 | Decision | Rationale | Trade-off |

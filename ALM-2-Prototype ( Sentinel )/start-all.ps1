@@ -36,13 +36,21 @@ if ($fePort -ne 48732) { Write-Host "[sentinel] 48732 busy, frontend using $fePo
 $env:SENTINEL_API_PORT = "$bePort"
 $env:SENTINEL_FE_PORT = "$fePort"
 
+# Runtime logs live in logs/ (never in the project root): audit.log, security.log, app.log written by the
+# backend itself, plus the captured stdout/stderr of both servers.
+$LogDir = Join-Path $Root 'logs'
+New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
+$env:SENTINEL_LOG_DIR = $LogDir
+
 $be = Start-Process -PassThru -WindowStyle Hidden -FilePath $Py -WorkingDirectory (Join-Path $Root 'backend') `
+      -RedirectStandardOutput (Join-Path $LogDir 'backend.log') -RedirectStandardError (Join-Path $LogDir 'backend.err.log') `
       -ArgumentList '-m','uvicorn','app.main:app','--port',"$bePort"
 $fe = Start-Process -PassThru -WindowStyle Hidden -FilePath 'cmd.exe' -WorkingDirectory (Join-Path $Root 'frontend') `
+      -RedirectStandardOutput (Join-Path $LogDir 'frontend.log') -RedirectStandardError (Join-Path $LogDir 'frontend.err.log') `
       -ArgumentList '/c','npm run dev'
 
 Start-Sleep -Seconds 4
-Write-Host "[sentinel] UI: http://localhost:$fePort   API docs: http://localhost:$bePort/docs"
+Write-Host "[sentinel] UI: http://localhost:$fePort   API docs: http://localhost:$bePort/docs   logs: $LogDir"
 Start-Process "http://localhost:$fePort"
 Write-Host 'Press Enter to stop both servers.'
 [void](Read-Host)

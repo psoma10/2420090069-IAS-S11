@@ -35,15 +35,21 @@ BE_PORT=$(free_port 48731); FE_PORT=$(free_port 48732 "$BE_PORT")
 [ "$FE_PORT" != 48732 ] && echo "[sentinel] 48732 busy, frontend using $FE_PORT"
 export SENTINEL_API_PORT="$BE_PORT" SENTINEL_FE_PORT="$FE_PORT"
 
+# Runtime logs live in logs/ (never in the project root): audit.log, security.log, app.log written by the
+# backend itself, plus the captured stdout/stderr of both servers.
+LOG_DIR="$ROOT/logs"
+mkdir -p "$LOG_DIR"
+export SENTINEL_LOG_DIR="$LOG_DIR"
+
 cleanup() { echo; echo "[sentinel] stopping"; kill "${BE:-}" "${FE:-}" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
-(cd "$ROOT/backend" && "$VPY" -m uvicorn app.main:app --port "$BE_PORT") & BE=$!
-(cd "$ROOT/frontend" && npm run dev) & FE=$!
+(cd "$ROOT/backend" && "$VPY" -m uvicorn app.main:app --port "$BE_PORT" >"$LOG_DIR/backend.log" 2>"$LOG_DIR/backend.err.log") & BE=$!
+(cd "$ROOT/frontend" && npm run dev >"$LOG_DIR/frontend.log" 2>"$LOG_DIR/frontend.err.log") & FE=$!
 
 sleep 4
 URL="http://localhost:$FE_PORT"
-echo "[sentinel] UI: $URL   API docs: http://localhost:$BE_PORT/docs"
+echo "[sentinel] UI: $URL   API docs: http://localhost:$BE_PORT/docs   logs: $LOG_DIR"
 if command -v xdg-open >/dev/null; then xdg-open "$URL" >/dev/null 2>&1 || true
 elif command -v open >/dev/null; then open "$URL" || true; fi
 wait

@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from .audit import AuditLog
 from .alert_bus import AlertBus, EventBus, RateLimiter
 from .anomaly import AnomalyConfig, AnomalyEngine
 from .clock import Clock, system_clock
@@ -18,8 +19,10 @@ VERSION = "1.0.0"
 
 class AppContext:
     def __init__(self, db_path: str | Path = DEFAULT_DB_PATH, clock: Clock = system_clock,
-                 seed: Optional[int] = None, auto_seed: bool = True) -> None:
+                 seed: Optional[int] = None, auto_seed: bool = True,
+                 log_dir: Optional[str | Path] = None) -> None:
         self.clock = clock
+        self.audit = AuditLog(log_dir)
         self.started_at = clock()
         self.db = Database(db_path)
         self.bus = AlertBus()
@@ -30,7 +33,7 @@ class AppContext:
         cfg = self.db.get_setting("anomaly_config", {})
         self.anomaly = AnomalyEngine(clock, AnomalyConfig(**cfg) if cfg else AnomalyConfig())
         self.sim = Simulator(self.db, self.firewall, self.ids, self.anomaly, self.bus, clock, seed,
-                         self.events)
+                             self.events, self.audit)
         self.live = LiveTraffic(self)
         if auto_seed:
             if self.db.scalar("SELECT COUNT(*) FROM hosts") == 0:

@@ -3,6 +3,7 @@ services:
     build: ./backend
     environment:
       SENTINEL_DB: /data/sentinel.db
+      SENTINEL_LOG_DIR: /data/logs
     volumes:
       - sentinel-data:/data
     ports:

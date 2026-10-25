@@ -9,7 +9,7 @@ CORS: allow `http://localhost:48732`.
 ```
 Sentinel/
   README.md  docs/(API_CONTRACT.md, ARCHITECTURE.md, USER_GUIDE.md, AUDIT.md, SECURITY_CONCEPTS.md)
-  backend/   app/(main.py, db.py, models.py, firewall.py, ids_rules.py, anomaly.py, simulator.py, routers/...) tests/ requirements.txt
+  backend/   app/(main.py, db.py, models.py, firewall.py, ids_rules.py, anomaly.py, simulator.py, audit.py, routers/...) tests/ requirements.txt
   frontend/  src/(api, components, pages, styles, data, hooks)
 ```
 
@@ -137,3 +137,18 @@ One stream for everything. Each message is `event: <type>\ndata: <json>\n\n`; a 
 
 ### Rate limiting
 `POST /api/traffic/send` and `POST /api/traffic/scenario/{name}` share a per-client-IP token bucket (20 requests/second, burst 40). When exhausted: `429 {"detail": "Too many requests: ..."}` with `Retry-After: 1`. Other endpoints are not limited.
+
+
+## Audit log (v1.2 addition)
+Mutating requests (`POST/PUT/PATCH/DELETE` under `/api`, except `/api/audit*`) and every raised alert are written to hash-chained JSON Lines files in the log directory (`SENTINEL_LOG_DIR`, default `<project>/logs`): `audit.log` and `security.log`. Each entry has `seq` (monotonic from 1), `ts`, `kind`, `prev` (hash of the previous entry, 64 zeros for the first) and `hash` (sha256 hex of the canonical JSON, `sort_keys` and compact separators, of the entry without `hash`). Files rotate at 5 MB with 5 backups; the chain continues across rotation.
+
+### `GET /api/audit`
+Query: `kind` = `audit` (default) | `security`; `limit` 1..1000 (default 100); `offset` >= 0; `q` case-insensitive substring over the raw JSON line. Returns an array of entries, **newest first**, read from the current file; the match count (ignoring limit/offset) is in the `X-Total-Count` header. Unknown `kind` -> 422.
+- audit entry: `{seq, ts, kind:"audit", actor (client IP), method, path, action ("firewall.rule.create", "firewall.rule.update", "alerts.clear", "simulation.reset", "live.configure", ...; unknown routes: "post:/api/x"), target (id/name from the path or null), status, outcome ("success" if status < 400 else "failure"), duration_ms, detail? (request JSON body summary: strings cut to 200 chars, about 2 KB max, omitted when there is no body), prev, hash}`
+- security entry: `{seq, ts, kind:"security", alert_id, rule_id, severity, source, title, src_ip, dst_ip, prev, hash}`
+
+### `GET /api/audit/verify`
+Query: `kind` as above. Recomputes the chain over the current file and returns `{kind, ok: bool, entries: int, first_bad_seq: int|null}`. The first line's `prev`/`seq` are trusted, so a file that starts mid-chain after rotation verifies. Editing a line reports that line's `seq`; deleting a line reports the `seq` of the line after the gap. An empty or missing file is `ok: true` with `entries: 0`.
+
+### `GET /api/live` / `PUT /api/live`
+`{enabled: bool, rate: float (0.2..20 benign packets/s), attack_interval: int (0..3600 mean seconds between attacks, 0 = never), running: bool, ticks, packets, attacks, last_attack: string|null, last_attack_at: float|null, queued: int}`. `PUT` accepts any of `enabled`, `rate`, `attack_interval` (the others are read-only) and returns the full object. The background thread starts with the server unless `SENTINEL_LIVE=0`.

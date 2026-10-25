@@ -6,26 +6,41 @@ from app.context import AppContext
 from app.main import create_app
 
 
+@pytest.fixture(autouse=True)
+def _log_dir_env(tmp_path, monkeypatch):
+    """Safety net: nothing a test builds may write audit/security logs into the project's logs/ folder."""
+    monkeypatch.setenv("SENTINEL_LOG_DIR", str(tmp_path / "env-logs"))
+
+
+@pytest.fixture()
+def log_dir(tmp_path):
+    return tmp_path / "logs"
+
+
 @pytest.fixture()
 def clock():
     return ManualClock(1_700_000_000.0)
 
 
 @pytest.fixture()
-def ctx(clock):
+def ctx(clock, log_dir):
     """Seeded context (hosts, rules, baseline) on an in-memory DB with a controllable clock."""
-    return AppContext(":memory:", clock, seed=7, auto_seed=True)
+    c = AppContext(":memory:", clock, seed=7, auto_seed=True, log_dir=log_dir)
+    yield c
+    c.audit.close()
 
 
 @pytest.fixture()
-def bare(clock):
+def bare(clock, log_dir):
     """Context with no seed data."""
-    return AppContext(":memory:", clock, seed=7, auto_seed=False)
+    c = AppContext(":memory:", clock, seed=7, auto_seed=False, log_dir=log_dir)
+    yield c
+    c.audit.close()
 
 
 @pytest.fixture()
-def client(clock):
-    app = create_app(":memory:", clock, seed=7)
+def client(clock, log_dir):
+    app = create_app(":memory:", clock, seed=7, log_dir=log_dir)
     with TestClient(app) as c:
         c.app_ctx = app.state.ctx
         yield c

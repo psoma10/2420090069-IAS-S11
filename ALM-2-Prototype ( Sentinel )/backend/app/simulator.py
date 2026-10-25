@@ -10,6 +10,7 @@ import numpy as np
 
 from . import firewall as fw
 from .alert_bus import AlertBus, EventBus
+from .audit import AuditLog
 from .anomaly import AnomalyEngine
 from .clock import Clock, iso
 from .db import Database
@@ -77,9 +78,10 @@ SCENARIOS = [
 class Simulator:
     def __init__(self, db: Database, fw_engine: FirewallEngine, ids: IdsEngine, anomaly: AnomalyEngine,
                  bus: AlertBus, clock: Clock, seed: Optional[int] = None,
-                 events: Optional[EventBus] = None) -> None:
+                 events: Optional[EventBus] = None, audit: Optional[AuditLog] = None) -> None:
         self.db, self.fw, self.ids, self.anomaly, self.bus, self.clock = db, fw_engine, ids, anomaly, bus, clock
         self.events = events
+        self.audit = audit  # optional security log; every raised alert is written to it
         self.rng = random.Random(seed)
         self.np_rng = np.random.default_rng(seed)
         self._fw_alert_last: dict[tuple[str, str], float] = {}
@@ -181,6 +183,8 @@ class Simulator:
             self.bus.publish(a)
             if self.events is not None:
                 self.events.publish("alert", a)
+            if self.audit is not None:
+                self.audit.security(a)
         return results
 
     def _firewall_alert(self, p: dict[str, Any]) -> Optional[dict[str, Any]]:

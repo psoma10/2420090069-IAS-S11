@@ -76,7 +76,7 @@ docker compose up --build        # UI on http://localhost:48732, API on http://l
 SENTINEL_FE_PORT=8080 SENTINEL_API_PORT=8081 docker compose up --build   # custom host ports
 ```
 
-The backend container runs uvicorn on `0.0.0.0:48731` with `SENTINEL_DB=/data/sentinel.db` on the named volume `sentinel-data` (data survives `docker compose down`; add `-v` to wipe it). The frontend is built with Node and served by nginx, which proxies `/api` to the backend with buffering off and a long read timeout so SSE works. The backend has a healthcheck on `/api/health`. Run a single backend instance.
+The backend container runs uvicorn on `0.0.0.0:48731` with `SENTINEL_DB=/data/sentinel.db` on the named volume `sentinel-data` (data survives `docker compose down`; add `-v` to wipe it). Logs go to `SENTINEL_LOG_DIR=/data/logs` on the same volume. The frontend is built with Node and served by nginx, which proxies `/api` to the backend with buffering off and a long read timeout so SSE works. The backend has a healthcheck on `/api/health`. Run a single backend instance.
 
 ### Cheat sheet (Makefile-style)
 
@@ -106,6 +106,8 @@ Sentinel/
 ├── package.json                     root convenience scripts (dev, test:backend, test:e2e, build)
 ├── docker-compose.yml               backend + frontend (nginx) services
 ├── .gitignore
+├── logs/                            runtime logs (git-ignored): audit.log, security.log, app.log, server output
+├── output/                          screenshots and other generated artefacts (tracked)
 ├── qa/                              contract_tests/, smoke_test.py, run_contract_tests.ps1
 ├── docs/
 │   ├── API_CONTRACT.md              binding API specification
@@ -125,6 +127,7 @@ Sentinel/
 │   │   ├── anomaly.py               statistical detection
 │   │   ├── simulator.py             traffic and scenario generation
 │   │   ├── alert_bus.py             SSE pub/sub
+│   │   ├── audit.py                 tamper-evident audit/security logs, audit middleware
 │   │   ├── clock.py                 injectable time source
 │   │   └── routers/                 one module per API area
 │   └── tests/                       pytest suite
@@ -165,6 +168,12 @@ Full request/response shapes are in [`docs/API_CONTRACT.md`](docs/API_CONTRACT.m
 | Events | `GET /events` (SSE; typed `summary`, `alert`, `change` events) |
 | Investigate | `GET /investigate/{ip}` |
 | Settings | `GET/PUT /settings` (retention) |
+| Live traffic | `GET /live`, `PUT /live` (see below) |
+| Audit | `GET /audit?kind=audit\|security&limit&offset&q` (newest first, `X-Total-Count`), `GET /audit/verify?kind=` (hash-chain check) |
+
+**Live traffic.** A background thread keeps the simulation moving: benign traffic plus a randomly chosen attack every so often. It starts with the server unless the environment variable `SENTINEL_LIVE=0` is set. `PUT /live` accepts `enabled` (bool), `rate` (benign packets/s, 0.2 to 20) and `attack_interval` (mean seconds between attacks, 0 = never, max 3600); `GET /live` returns those plus read-only `running`, `packets`, `attacks`, `last_attack` and `queued`.
+
+**Audit logging.** All logs go to one folder, `logs/` (override with `SENTINEL_LOG_DIR`): `audit.log` (every mutating API call: actor, action, target, outcome, request summary), `security.log` (one line per alert raised) and `app.log` (application log). The first two are JSON Lines, rotate at 5 MB (5 backups) and are hash-chained, so `GET /api/audit/verify` reports `ok: false` and the `first_bad_seq` if a line was edited or removed. The launchers also write `backend.log`, `backend.err.log`, `frontend.log` and `frontend.err.log` there. Nothing runtime is written to the project root.
 
 List endpoints accept `offset` and return the total in the `X-Total-Count` header. Traffic endpoints are rate limited.
 
