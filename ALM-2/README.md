@@ -6,7 +6,7 @@
 
 ## 1. Project Title
 
-AES Client-Server Text File Transfer — AES-128-CBC via PyCryptodome over TCP sockets.
+AES Client-Server Text File Transfer — AES-128-CBC via PyCryptodome over TCP sockets..
 
 ## 2. Objective
 
